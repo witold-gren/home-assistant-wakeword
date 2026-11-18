@@ -1,0 +1,34 @@
+/* The look of the studio (gpu-studio standard): indigo accent, screenshots with a frame and a caption.
+   The classes of the old hand-written guide (guide.md, faq.md, cheatsheet.md) mapped onto Material's colours. */
+:root { --ww-ok: #15803d; --ww-ok-soft: #dcfce7; --ww-bad: #b91c1c; --ww-bad-soft: #fee2e2; }
+[data-md-color-scheme="slate"] { --ww-ok: #86efac; --ww-ok-soft: #14361f; --ww-bad: #fca5a5; --ww-bad-soft: #3b1515; }
+
+.md-typeset .shot { margin: 14px 0 22px; }
+.md-typeset .shot img { display: block; max-width: min(100%, 1100px); height: auto;
+  border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; }
+.md-typeset .shot.narrow img { max-width: min(100%, 440px); }
+.md-typeset .shot figcaption { color: var(--md-default-fg-color--light); font-size: .85em; margin-top: 6px; max-width: none; }
+.md-typeset .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; align-items: start; }
+.md-typeset .shots .shot { margin: 0; }
+.md-typeset p > img { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; }
+
+.md-typeset .note, .md-typeset .tip, .md-typeset .warn { padding: 8px 14px; border-radius: 6px; margin: 16px 0; }
+.md-typeset .note { background: var(--md-accent-fg-color--transparent); border-left: 4px solid var(--md-accent-fg-color); }
+.md-typeset .tip { background: var(--ww-ok-soft); border-left: 4px solid var(--ww-ok); }
+.md-typeset .warn { background: var(--ww-bad-soft); border-left: 4px solid var(--ww-bad); }
+.md-typeset .step { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 2px 16px 8px; margin: 14px 0; }
+.md-typeset .step > label { display: block; font-weight: 700; padding: 10px 0 2px; }
+.md-typeset .where { display: inline-block; font-size: .72em; font-weight: 600; border: 1px solid var(--md-default-fg-color--lightest);
+  color: var(--md-default-fg-color--light); border-radius: 999px; padding: 0 8px; margin-left: 6px; vertical-align: 2px; }
+.md-typeset .table { overflow-x: auto; }
+
+.md-typeset .flow { border: 1px solid var(--md-default-fg-color--lightest); border-radius: 10px; padding: 12px; margin: 16px 0; overflow-x: auto; }
+.md-typeset .flow svg { display: block; min-width: 680px; width: 100%; max-width: 1100px; height: auto; margin: 0 auto; }
+.md-typeset .flow .box { fill: var(--md-default-bg-color); stroke: var(--md-default-fg-color--lightest); stroke-width: 1.5; }
+.md-typeset .flow .hot { fill: var(--md-accent-fg-color--transparent); stroke: var(--md-accent-fg-color); stroke-width: 1.5; }
+.md-typeset .flow .okbox { fill: var(--ww-ok-soft); stroke: var(--ww-ok); stroke-width: 1.5; }
+.md-typeset .flow text { fill: var(--md-default-fg-color); font: 13px system-ui, sans-serif; }
+.md-typeset .flow .small { fill: var(--md-default-fg-color--light); font-size: 11px; }
+.md-typeset .flow .lane { fill: var(--md-default-fg-color--light); font-size: 12px; font-weight: 600; }
+.md-typeset .flow .arrow { stroke: var(--md-default-fg-color--light); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+.md-typeset .flow marker path { fill: var(--md-default-fg-color--light); }

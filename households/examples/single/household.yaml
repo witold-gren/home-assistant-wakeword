@@ -1,0 +1,22 @@
+# Example household: one person, one wake word, one device.
+
+ui_language: en
+
+speakers:
+  - {id: me, group: adult}
+
+words:
+  hey_tony:
+    wake_word: "Hey Tony"
+    trained_languages: [en]
+    speakers: all
+    spellings:
+      en: ["hey tony", "hey toni", "hay tony"]
+    sound_alikes: ["hey tommy", "hey johnny", "a tony", "hey tiny"]
+
+targets:
+  adult: 15
+  held_out: 3
+
+devices:
+  office-voice: [hey_tony, okay_nabu]

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wake word recorder</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <button id="back" class="link" hidden></button>
+    <h1 id="title"></h1>
+    <div id="lang-switch" class="lang-switch" role="group" aria-label="Language"></div>
+  </header>
+  <main>
+    <p id="warning" class="warning" hidden></p>
+
+    <section id="who" hidden>
+      <h2 data-ui="who_are_you"></h2>
+      <div id="speakers" class="grid"></div>
+    </section>
+
+    <section id="words" hidden>
+      <h2 data-ui="your_words"></h2>
+      <p class="muted" data-ui="choose_word"></p>
+      <div id="word-list" class="list"></div>
+    </section>
+
+    <section id="record" hidden>
+      <p class="progress-text" id="progress-text"></p>
+      <div class="bar"><div id="progress-bar"></div></div>
+      <p class="say" id="say"></p>
+      <p class="instruction" id="instruction"></p>
+      <div class="meter" aria-hidden="true"><div id="level"></div></div>
+      <div class="actions">
+        <button id="start" class="primary" data-ui="start"></button>
+        <button id="stop" class="primary danger" data-ui="stop" hidden></button>
+      </div>
+      <div class="actions" id="review" hidden>
+        <button id="listen" data-ui="listen"></button>
+        <button id="keep" class="primary" data-ui="keep"></button>
+        <button id="redo" data-ui="redo"></button>
+      </div>
+      <p id="status" class="status" role="status"></p>
+      <details>
+        <summary id="files-summary"></summary>
+        <ul id="files" class="files"></ul>
+      </details>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

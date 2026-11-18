@@ -1,0 +1,18 @@
+# only the code goes into the image; recordings, models and secrets are volumes
+.git
+.venv*
+**/__pycache__
+.pytest_cache
+.ruff_cache
+*.egg-info
+backup
+data
+households/*/data
+docker/data
+docker/config
+docker/.env
+custom_components
+tests_ha
+PLAN.md
+site
+Makefile.local

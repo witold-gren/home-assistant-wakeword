@@ -1,0 +1,51 @@
+# Example household: one wake word for everybody + one personal word per child's room.
+# Copy this directory to households/<your-name>/ and adjust. Speaker ids are labels only —
+# no real names are needed. Recordings go to data/ next to this file (never committed).
+
+ui_language: pl               # language of the recorder instructions (en, pl)
+
+speakers:
+  - {id: dad, group: adult}
+  - {id: mum, group: adult}
+  - {id: son, group: child}
+  - {id: daughter1, group: child}
+  - {id: daughter2, group: child}
+
+words:
+  dzarwis:
+    wake_word: "Dżarwis"      # the name shown in Home Assistant
+    trained_languages: [pl]
+    speakers: all             # everybody records it, so it works for everybody
+    spellings:                # what the TTS voices say, per TTS language
+      pl: ["dżarwis", "dżarwys", "dżar wis"]
+      en: ["jarvis", "jar vis"]
+    sound_alikes: ["harwis", "dżem wiśniowy", "jarmark", "darwin"]
+
+  optimus_prime:
+    wake_word: "Optimus Prime"
+    trained_languages: [en]
+    speakers: [son, dad]
+    spellings:
+      en: ["optimus prime", "optimus"]
+      pl: ["optimus prajm", "optimus prime"]
+    sound_alikes: ["optimum price", "optymista", "oprime"]
+
+  wajana:
+    wake_word: "Wajana"
+    trained_languages: [pl]
+    speakers: [daughter1, daughter2, mum]
+    spellings:
+      pl: ["wajana", "wajaana"]
+      en: ["vaiana", "vy ana"]
+    sound_alikes: ["banana", "tajana", "wanna", "jana"]
+
+targets:
+  adult: 12                   # takes per adult per word
+  child: 18                   # takes per child per word (children vary more)
+  held_out: 3                 # takes per person per word kept for testing only
+
+devices:                      # ESPHome device name -> wake words (Voice PE: two slots)
+  living-room-voice: [dzarwis, okay_nabu]
+  bedroom-voice: [dzarwis, okay_nabu]
+  son-room-voice: [dzarwis, optimus_prime]
+  daughters-room-voice: [dzarwis, wajana]

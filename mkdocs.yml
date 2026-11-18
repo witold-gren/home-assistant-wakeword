@@ -1,0 +1,127 @@
+# The documentation site (gpu-studio standard, section 8): built into the Docker image (the studio's "?" opens it
+# at /docs/ even without the internet) and published on the home documents site (docs-hub).
+# Pages: docs/en/*.md in English, docs/pl/*.md in Polish, the same file names and the same {#anchors}.
+#   make docs        build into site/ and open it
+#   make docs-serve  live preview
+site_name: Wake words
+site_url: !ENV [SITE_URL, "https://witold-gren.github.io/home-assistant-wakeword/"]  # make docs-serve: the root
+site_description: Your own wake words for Home Assistant Voice - recordings, training on the GPU machine, deployment.
+repo_url: https://github.com/witold-gren/home-assistant-wakeword
+repo_name: witold-gren/home-assistant-wakeword
+edit_uri: edit/main/docs/
+docs_dir: docs
+strict: true
+use_directory_urls: false  # pages as NN-name.html: the same links in the studio, on the site and in raw HTML
+
+exclude_docs: |
+  /design/
+  *.py
+  __pycache__/
+
+extra_css:
+  - stylesheets/extra.css
+
+hooks:
+  - docs/site_hooks.py
+
+theme:
+  name: material
+  logo: assets/icon.png
+  favicon: assets/icon.png
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tracking
+    - navigation.top
+    - navigation.footer
+    - navigation.sections
+    - toc.follow
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: pl
+          name: Polski
+          build: true
+          site_name: Słowa budzące
+          site_description: Własne słowa budzące dla Home Assistant Voice - nagrania, trening na maszynie z GPU, wdrożenie.
+          nav_translations:
+            Start: Start
+            The studio: Studio
+            The studio step by step: Studio krok po kroku
+            Step by step: Krok po kroku
+            Doing it well: Jak robić to dobrze
+            The shared standard: Wspólny standard
+            Help: Pomoc
+            Changes: Lista zmian
+
+nav:
+  - Start: index.md
+  - The studio: 11-studio.md
+  - The studio step by step: 13-studio-step-by-step.md
+  - Step by step:
+      - 00-how-it-works.md
+      - 01-what-you-need.md
+      - 02-plan-your-household.md
+      - 03-recording.md
+      - 04-augmentation-and-negatives.md
+      - 05-synthetic-data.md
+      - 06-training.md
+      - 07-evaluation.md
+      - 08-deployment.md
+      - 09-iterating.md
+      - 10-alternatives.md
+  - Doing it well: 12-training-well.md
+  - The shared standard: standard.md
+  - Help:
+      - faq.md
+      - cheatsheet.md
+  - Changes: changelog.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+
+validation:
+  links:
+    absolute_links: ignore

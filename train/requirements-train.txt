@@ -1,0 +1,17 @@
+# Training machine (Linux + NVIDIA GPU, Python 3.10-3.12). Installed by train/train.sh.
+# microWakeWord itself is installed from git by train.sh (MWW_REPO / MWW_REF).
+# TensorFlow with the CUDA libraries - plain `tensorflow` (pulled in by microWakeWord) runs on the CPU only
+tensorflow[and-cuda]>=2.16
+# microWakeWord writes training statistics (tf.summary); TensorFlow 2.20+ no longer installs it
+tensorboard
+piper-sample-generator>=3.0
+piper-tts>=1.3
+torch
+torchaudio
+datasets>=2.18,<4
+scipy
+soundfile
+numpy
+pyyaml
+tqdm
+mmap-ninja

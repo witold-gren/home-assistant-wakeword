@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wake word studio</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+  /* the same tokens as the editors of Home Dashboard and Assist Router (dark by default) */
+  :root {
+    --bg: #111318; --panel: #1b1e24; --panel2: #23272e; --line: #2f343c; --text: #e8eaed; --muted: #9aa0a6;
+    --accent: #4f8cff; --red: #ff453a; --field: #15171c; --shadow: 0 10px 40px rgba(0, 0, 0, .45);
+  }
+  :root[data-theme="light"] {
+    --bg: #f2f3f7; --panel: #fff; --panel2: #eceef3; --line: #d9dce3; --text: #1c1e22; --muted: #5f6570;
+    --accent: #2f6fe4; --red: #d70015; --field: #fff; --shadow: 0 10px 40px rgba(20, 30, 60, .12);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--text); display: grid; place-items: center; padding: 16px;
+    font: 14px/1.4 -apple-system, "SF Pro Text", Roboto, system-ui, sans-serif;
+  }
+  form {
+    width: min(360px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+    padding: 28px 24px 24px; box-shadow: var(--shadow); display: grid; gap: 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand img { width: 34px; height: 34px; }
+  h1 { font-size: 18px; margin: 0; }
+  .sub { color: var(--muted); margin: -6px 0 4px; }
+  label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; }
+  input {
+    font: inherit; color: var(--text); background: var(--field); border: 1px solid var(--line); border-radius: 9px;
+    padding: 9px 11px; outline: none;
+  }
+  input:focus { border-color: var(--accent); }
+  button {
+    font: inherit; font-weight: 600; color: #fff; background: var(--accent); border: 0; border-radius: 9px;
+    padding: 10px 12px; cursor: pointer;
+  }
+  button:disabled { opacity: .55; cursor: default; }
+  .error { color: var(--red); min-height: 1.4em; margin: 0; }
+  .hint { color: var(--muted); font-size: 12px; margin: 0; }
+  code { font-size: 12px; }
+</style>
+</head>
+<body>
+<form id="login" autocomplete="on">
+  <div class="brand"><img src="/favicon.svg" alt=""><h1 data-t="title"></h1></div>
+  <p class="sub" data-t="subtitle"></p>
+  <label><span data-t="user"></span><input name="user" autocomplete="username" required autofocus></label>
+  <label><span data-t="password"></span><input name="password" type="password" autocomplete="current-password" required></label>
+  <p class="error" id="error" role="alert"></p>
+  <button type="submit" data-t="submit"></button>
+  <p class="hint" data-t="hint"></p>
+</form>
+<script>
+  const TEXTS = {
+    en: {
+      title: "Wake word studio", subtitle: "Log in to train your household's wake words",
+      user: "User", password: "Password", submit: "Log in",
+      wrong: "Wrong user or password.", pause: "Too many attempts - try again in {s} s.",
+      offline: "The studio does not answer - is the container running?",
+      hint: "Forgot it? It is in <code>config/env</code> next to <code>compose.yaml</code> (WAKEWORD_UI_AUTH).",
+    },
+    pl: {
+      title: "Studio słów budzących", subtitle: "Zaloguj się, aby trenować słowa budzące rodziny",
+      user: "Użytkownik", password: "Hasło", submit: "Zaloguj",
+      wrong: "Zły użytkownik albo hasło.", pause: "Za dużo prób - spróbuj ponownie za {s} s.",
+      offline: "Studio nie odpowiada - czy kontener działa?",
+      hint: "Zapomniałeś? Jest w <code>config/env</code> obok <code>compose.yaml</code> (WAKEWORD_UI_AUTH).",
+    },
+  };
+  const read = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
+  const lang = new URLSearchParams(location.search).get("lang") || read("wakeword-studio-lang")
+    || (navigator.language || "en").slice(0, 2);
+  const t = TEXTS[lang] || TEXTS.en;
+  document.documentElement.lang = TEXTS[lang] ? lang : "en";
+  const theme = read("wakeword-studio-theme") || "auto";
+  const dark = theme === "dark" || (theme === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  document.title = t.title;
+  for (const el of document.querySelectorAll("[data-t]")) el.innerHTML = t[el.dataset.t];
+
+  const form = document.getElementById("login");
+  const error = document.getElementById("error");
+  const button = form.querySelector("button");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    error.textContent = "";
+    button.disabled = true;
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({user: form.user.value, password: form.password.value}),
+      });
+      const answer = await response.json();
+      if (response.ok) { location.replace("/"); return; }
+      error.textContent = answer.retry_after ? t.pause.replace("{s}", answer.retry_after) : t.wrong;
+      form.password.select();
+    } catch {
+      error.textContent = t.offline;
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

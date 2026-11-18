@@ -1,0 +1,30 @@
+# Recordings and everything generated from them stay at home
+households/*/data/
+households/*/household.yaml.bak
+!households/examples/
+
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+.venv-ha/
+.ruff_cache/
+
+# local backups and working data (never published)
+backup/
+data/
+.DS_Store
+PLAN.md
+
+# the studio in Docker: data and secrets of the machine (never published)
+docker/data/
+docker/config/
+docker/.env
+
+Makefile.local
+
+# documentation site: the build and the changelog copies (docs/site_hooks.py)
+site/
+docs/*/changelog.md

@@ -1,0 +1,32 @@
+# Wake word studio on the GPU machine. Start with docker/install-ubuntu.sh (it writes config/env and .env).
+# Starts by itself with the machine (restart: unless-stopped, Docker enabled at boot).
+name: wakeword-studio
+
+services:
+  studio:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: studio                # never the last stage by chance (the light demo stage is not for the machine)
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    image: wakeword-studio:latest
+    restart: unless-stopped
+    env_file: ./config/env          # WAKEWORD_UI_AUTH=admin:<password> (mode 600)
+    ports:
+      - "${STUDIO_PORT:-8765}:8765"
+    # the folders on the machine (docker/.env may point them at existing ones, e.g. ~/wakeword-train/household)
+    volumes:
+      - ${STUDIO_HOUSEHOLD:-./data/household}:/data/household            # household.yaml, recordings, prepared data, models
+      - ${STUDIO_WORK:-./data/work}:/data/work                            # ~30 GB: negative datasets, voices, generators
+      - ${STUDIO_HF:-./data/huggingface}:/home/wakeword/.cache/huggingface # Hugging Face (token, downloads)
+      - ./config:/home/wakeword/.config/wakeword                          # Home Assistant, ElevenLabs, login secret
+    shm_size: 8gb                   # TensorFlow's data loaders
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
