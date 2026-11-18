@@ -283,16 +283,16 @@ def slow_state(server, monkeypatch, seconds):
     original = server.studio.call
     lock = threading.Lock()
 
-    def call(message, user=""):
+    def call(message, user="", trusted=False):
         if message.get("type") != "state":
-            return original(message, user)
+            return original(message, user, trusted)
         with lock:
             calls["now"] += 1
             calls["all"] += 1
             calls["most"] = max(calls["most"], calls["now"])
         try:
             time.sleep(seconds)
-            return original(message, user)
+            return original(message, user, trusted)
         finally:
             with lock:
                 calls["now"] -= 1
@@ -399,9 +399,9 @@ def test_one_draft_save_at_a_time_on_a_slow_server(page, studio, monkeypatch):
     original = server.studio.call
     lock = threading.Lock()
 
-    def call(message, user=""):
+    def call(message, user="", trusted=False):
         if message.get("type") != "draft/save":
-            return original(message, user)
+            return original(message, user, trusted)
         with lock:
             saves["now"] += 1
             saves["all"] += 1
@@ -409,7 +409,7 @@ def test_one_draft_save_at_a_time_on_a_slow_server(page, studio, monkeypatch):
         try:
             time.sleep(1.5)
             saves["last"] = [s["id"] for s in message["data"]["speakers"]]
-            return original(message, user)
+            return original(message, user, trusted)
         finally:
             with lock:
                 saves["now"] -= 1
@@ -451,3 +451,17 @@ def test_side_columns_fold_and_unfold(page):
     page.wait_for_selector("[data-side]")
     assert abs(middle() - wide) < 2  # the widths from before folding are back
     assert "Ctrl/⌘+B" in page.get_attribute("[data-tree] [data-fold-column='left']", "title")
+
+
+def test_a_trusted_network_shows_no_logout(page, studio):
+    from wakeword.studio.auth import parse_networks
+
+    server, _base = studio
+    server.auth.trusted_networks = parse_networks("127.0.0.0/8")
+    page.reload()
+    page.wait_for_selector(".view-host > *")
+    page.click("[data-menu]")
+    assert "STUDIO_TRUSTED_NETWORKS" in page.inner_text("[data-who]")
+    assert page.locator("[data-menu-pop] [data-logout]").count() == 0
+    go(page, "account")
+    assert page.locator("[data-view='account'] [data-trusted]").count() == 1

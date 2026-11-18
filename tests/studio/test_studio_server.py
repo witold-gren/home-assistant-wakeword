@@ -2,6 +2,8 @@
 
 import json
 import threading
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 import pytest
@@ -370,3 +372,39 @@ def test_page_gone_before_the_answer_is_not_an_error(studio, tmp_path):
     handler.log_request = lambda *args: None
     handler._json({"ok": True}, HTTPStatus.OK)
     assert handler.close_connection is True
+
+
+def test_a_trusted_network_opens_the_studio_without_the_login(studio, household_dir, tmp_path):
+    """STUDIO_TRUSTED_NETWORKS: a home on its own network (here 127.0.0.0/8) skips the login; a header cannot fake it."""
+    from wakeword.studio.auth import parse_networks
+
+    def serve(networks):
+        server = make_server(household_dir, PASSWORD, port=0, verbose=False, secret_folder=tmp_path / "secret",
+                             repo=studio.repo, trusted_networks=parse_networks(networks))
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        return server, f"http://127.0.0.1:{server.server_address[1]}"
+
+    server, base = serve("127.0.0.0/8")
+    try:
+        assert call(base + "/")[0] == 200
+        status, headers, _ = call(base + "/login")
+        assert status == 303 and headers["Location"] == "/"
+        status, _, body = call(base + "/api/call", {"type": "state"})
+        assert status == 200 and json.loads(body)["studio"]["trusted"] is True
+    finally:
+        server.shutdown()
+        server.server_close()
+
+    server, base = serve("192.168.0.0/23")  # this computer (127.0.0.1) is not in it
+    try:
+        request = urllib.request.Request(base + "/api/call", data=b'{"type": "state"}', method="POST",
+                                         headers={"X-Forwarded-For": "192.168.1.5"})
+        with pytest.raises(urllib.error.HTTPError) as refused:
+            urllib.request.urlopen(request)
+        assert refused.value.code == 401  # only the connection's address counts
+        cookie = login(base)[1]["Set-Cookie"].split(";")[0]
+        status, _, body = call(base + "/api/call", {"type": "state"}, cookie=cookie)
+        assert status == 200 and json.loads(body)["studio"]["trusted"] is False
+    finally:
+        server.shutdown()
+        server.server_close()

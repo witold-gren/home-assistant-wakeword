@@ -22,7 +22,15 @@ from urllib.parse import parse_qs, urlparse
 
 from .. import __version__, ha_sync
 from ..trainer.server import CONTENT_TYPES, REPO, Trainer, docs_path
-from .auth import COOKIE, ENV, Auth, LoginRefused, parse_credentials
+from .auth import (
+    COOKIE,
+    ENV,
+    TRUSTED_ENV,
+    Auth,
+    LoginRefused,
+    parse_credentials,
+    parse_networks,
+)
 from .drafts import Conflict, Drafts
 
 WWW = Path(__file__).parent / "www"
@@ -110,13 +118,13 @@ class Studio(Trainer):
             self.power_off_error = str(err)
 
     # --- one call of the editor ------------------------------------------------------------------
-    def call(self, message: dict, user: str = "") -> object:
+    def call(self, message: dict, user: str = "", trusted: bool = False) -> object:
         kind = message.get("type")
         arg = lambda name, default="": message.get(name, default)
         if kind == "state":
             self.tick()
             state = self.state(arg("language") or None)
-            state["studio"] = {"user": user, "version": __version__, "power_off": dict(self.power_off),
+            state["studio"] = {"user": user, "trusted": trusted, "version": __version__, "power_off": dict(self.power_off),
                                "power_off_delay": POWER_OFF_DELAY,
                                "power_off_error": getattr(self, "power_off_error", None)}
             return state
@@ -189,7 +197,12 @@ def _handler(studio: Studio, auth: Auth):
             self._send(status, json.dumps(data, ensure_ascii=False).encode(), "application/json; charset=utf-8",
                        headers)
 
+        def _trusted(self) -> bool:
+            return auth.trusted(self.client_address[0])  # the connection's address, never a header
+
         def _user(self) -> str | None:
+            if self._trusted():
+                return auth.user
             cookie = SimpleCookie(self.headers.get("Cookie", ""))
             return auth.check(cookie[COOKIE].value if COOKIE in cookie else None)
 
@@ -217,6 +230,8 @@ def _handler(studio: Studio, auth: Auth):
                 mode = "demo" if getattr(self.server, "demo", None) is not None else "studio"
                 return self._json({"ok": True, "app": "wakeword-studio", "mode": mode, "version": __version__})
             if url.path == "/login":
+                if self._trusted():  # nothing to log in to from a trusted network
+                    return self._send(HTTPStatus.SEE_OTHER, b"", "text/plain", {"Location": "/"})
                 return self._static("login.html")
             if url.path in ("/favicon.svg", "/icon.png"):
                 return self._static(url.path.lstrip("/"))
@@ -265,7 +280,7 @@ def _handler(studio: Studio, auth: Auth):
             if path != "/api/call":
                 return self._json({"error": "not found"}, HTTPStatus.NOT_FOUND)
             try:
-                return self._json(studio.call(data, user))
+                return self._json(studio.call(data, user, self._trusted()))
             except Conflict as err:
                 return self._json({"error": str(err), "conflict": True}, HTTPStatus.CONFLICT)
             except ERRORS as err:
@@ -275,10 +290,10 @@ def _handler(studio: Studio, auth: Auth):
 
 
 def make_server(household: Path, credentials: tuple[str, str], host: str = "127.0.0.1", port: int = 8765,
-                verbose: bool = True, secret_folder: Path | None = None,
+                verbose: bool = True, secret_folder: Path | None = None, trusted_networks: tuple = (),
                 **studio_options) -> ThreadingHTTPServer:
     studio = Studio(household, **studio_options)
-    auth = Auth(credentials, secret_folder or ha_sync.CONFIG_FILE.parent)
+    auth = Auth(credentials, secret_folder or ha_sync.CONFIG_FILE.parent, trusted_networks=trusted_networks)
     server = ThreadingHTTPServer((host, port), _handler(studio, auth))
     server.verbose = verbose
     server.studio = studio
@@ -289,11 +304,13 @@ def make_server(household: Path, credentials: tuple[str, str], host: str = "127.
 def serve(household: Path, host: str, port: int) -> None:
     try:
         credentials = parse_credentials(os.environ.get(ENV))
+        trusted = parse_networks(os.environ.get(TRUSTED_ENV))
     except ValueError as err:
         raise SystemExit(f"error: {err}") from None
-    server = make_server(household, credentials, host, port)
+    server = make_server(household, credentials, host, port, trusted_networks=trusted)
+    without = f"; no login from {', '.join(map(str, trusted))}" if trusted else ""
     print(f"Wake word studio for '{Path(household).resolve().name}' on http://{host}:{port}/ "
-          f"(user '{credentials[0]}', password in {ENV})", flush=True)
+          f"(user '{credentials[0]}', password in {ENV}{without})", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

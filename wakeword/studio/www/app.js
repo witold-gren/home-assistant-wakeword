@@ -848,14 +848,15 @@ class WakewordStudio extends LitElement {
         <ha-icon icon="mdi:menu"></ha-icon>
       </button>
       ${this._menu ? html`<div class="menu-pop" data-menu-pop @click=${() => { this._menu = false; }}>
-        <span class="who">${this._t("logged_in", { user: this._state.studio?.user || "?" })}</span>
+        <span class="who" data-who>${this._state.studio?.trusted ? this._t("trusted_login")
+          : this._t("logged_in", { user: this._state.studio?.user || "?" })}</span>
         <a href=${common.docsUrl()} target="_blank" rel="noopener">
           <ha-icon icon="mdi:book-open-variant"></ha-icon>${this._t("docs")}</a>
         <button @click=${() => this._select("account")}><ha-icon icon="mdi:account-key-outline"></ha-icon>${this._t("n_account")}</button>
-        <button data-logout @click=${async () => {
+        ${this._state.studio?.trusted ? nothing : html`<button data-logout @click=${async () => {
           await fetch("/api/logout", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
           location.assign("/login");
-        }}><ha-icon icon="mdi:logout"></ha-icon>${this._t("logout")}</button>
+        }}><ha-icon icon="mdi:logout"></ha-icon>${this._t("logout")}</button>`}
       </div>` : nothing}
       </span>
       <h1>${this._t("title")}</h1>

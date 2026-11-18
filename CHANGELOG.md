@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 — 2026-11-18
 
+- **No login on the home network** (optional): `STUDIO_TRUSTED_NETWORKS=192.168.1.0/24` in `docker/config/env` (or `make install STUDIO_TRUSTED_NETWORKS=…`) logs every connection from those networks in at once; only the connection's address counts, never a header. Empty (the default) keeps the login from everywhere, as on a machine in the cloud. The menu and Settings → Login say so instead of offering "Log out". The same variable in every studio of the GPU machine.
 - The documentation is published on GitHub Pages (`.github/workflows/docs.yml`, the same MkDocs versions as the image, strict): https://witold-gren.github.io/home-assistant-wakeword/ — linked from both READMEs.
 
 ## 1.0.0 — 2026-11-18

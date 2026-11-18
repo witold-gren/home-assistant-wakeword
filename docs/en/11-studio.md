@@ -119,6 +119,17 @@ in the browser keeps the session for 30 days. To change the password: edit the f
 `docker compose -f docker/compose.yaml restart` — everybody is logged out. After 5 wrong passwords from one address
 the studio waits 60 s (no permanent ban).
 
+### No login on the home network {#trusted-networks}
+
+The login protects a machine in the cloud (e.g. AWS). If you use the machine only at home, you can switch it off for
+your network: `STUDIO_TRUSTED_NETWORKS=192.168.1.0/24` (your home network; several networks comma-separated) in
+`docker/config/env` on the machine, then `make deploy` (or when installing: `make install
+STUDIO_TRUSTED_NETWORKS=192.168.1.0/24`). A connection from that network is logged in at once, and the menu shows "No
+login needed — this network is trusted" instead of "Log out". Only the connection's address counts, never headers that
+could be faked. **VPN:** when your VPN translates its clients to a home address (e.g. WireGuard with masquerade), the VPN gets
+in without a login too; otherwise add the VPN's network. From other networks the login stays. The same variable works in every studio on the GPU
+machine (the shared standard). On a machine in the cloud leave it empty.
+
 ## 11.3 The screen {#the-screen}
 
 ![Studio](../assets/screens/en/studio-overview.png)

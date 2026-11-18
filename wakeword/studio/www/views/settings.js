@@ -176,11 +176,17 @@ export function renderHfToken() {
 // --- the login (docker/config/env) -------------------------------------------------------------------------
 
 export function renderAccount() {
+  if (state.studio?.trusted) {  // STUDIO_TRUSTED_NETWORKS: this network needs no login
+    return card(t("n_account"), null,
+      el("p", { "data-trusted": "" }, t("trusted_login")),
+      el("p", { class: "hint" }, t("trusted_hint")));
+  }
   return card(t("n_account"), null,
     el("p", {}, t("logged_in", { user: state.studio?.user || "?" })),
     el("p", { class: "hint" }, t("account_intro")),
     el("p", { class: "hint" }, t("account_change")),
     el("p", { class: "hint" }, el("code", {}, t("account_show"))),
+    el("p", { class: "hint" }, t("trusted_hint")),
     el("div", { class: "voice-repo-row" }, el("button", { type: "button", class: "btn", "data-logout": "", onclick: async () => {
       await fetch("/api/logout", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
       location.assign("/login");

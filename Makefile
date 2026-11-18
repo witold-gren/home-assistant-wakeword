@@ -41,7 +41,7 @@ STUDIO_WORK ?=
 STUDIO_HF ?=
 RSYNC_CODE := rsync -az --delete --exclude .git --exclude '.venv*' --exclude __pycache__ --exclude .pytest_cache \
   --exclude backup --exclude data --exclude docker/data --exclude docker/config --exclude docker/.env --exclude Makefile.local
-STUDIO_FOLDERS := $(if $(STUDIO_HOUSEHOLD),STUDIO_HOUSEHOLD=$(STUDIO_HOUSEHOLD) )$(if $(STUDIO_WORK),STUDIO_WORK=$(STUDIO_WORK) )$(if $(STUDIO_HF),STUDIO_HF=$(STUDIO_HF) )
+STUDIO_FOLDERS := $(if $(STUDIO_TRUSTED_NETWORKS),STUDIO_TRUSTED_NETWORKS=$(STUDIO_TRUSTED_NETWORKS) )$(if $(STUDIO_HOUSEHOLD),STUDIO_HOUSEHOLD=$(STUDIO_HOUSEHOLD) )$(if $(STUDIO_WORK),STUDIO_WORK=$(STUDIO_WORK) )$(if $(STUDIO_HF),STUDIO_HF=$(STUDIO_HF) )
 COMPOSE := docker compose -f docker/compose.yaml
 HA_CONFIG ?= /Volumes/config
 # device YAMLs for the Devices tab, when the Home Assistant config share is mounted

@@ -119,6 +119,17 @@ Cloner). Po zalogowaniu przeglądarka pamięta sesję 30 dni. Zmiana hasła: pop
 `docker compose -f docker/compose.yaml restart` — wszyscy zostaną wylogowani. Po 5 złych hasłach z jednego adresu
 studio czeka 60 s (bez trwałej blokady).
 
+### Bez logowania w sieci domowej {#trusted-networks}
+
+Logowanie chroni maszynę w chmurze (np. AWS). Jeśli używasz maszyny tylko w domu, możesz je wyłączyć dla swojej
+sieci: `STUDIO_TRUSTED_NETWORKS=192.168.1.0/24` (Wasza sieć domowa; kilka sieci po przecinku) w `docker/config/env`
+na maszynie, potem `make deploy` (albo przy instalacji: `make install STUDIO_TRUSTED_NETWORKS=192.168.1.0/24`).
+Połączenie z tej sieci jest od razu zalogowane, a w menu zamiast „Wyloguj” widać „Bez logowania — ta sieć jest
+zaufana”. Liczy się tylko adres połączenia, nie nagłówki, które dałoby się podrobić. **VPN:** jeśli Wasz VPN zamienia adresy klientów
+na adres w sieci domowej (np. WireGuard z maskaradą), VPN też wchodzi bez logowania; inaczej dopisz sieć VPN. Z innych sieci
+logowanie zostaje. Ta sama zmienna działa we wszystkich studiach na maszynie z GPU (wspólny standard).
+Na maszynie w chmurze zostaw ją pustą.
+
 ## 11.3 Ekran {#the-screen}
 
 ![Studio](../assets/screens/pl/studio-overview.png)

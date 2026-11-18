@@ -2,8 +2,14 @@
 
 import pytest
 
-from wakeword.studio.auth import (MAX_FAILURES, PAUSE_SECONDS, SESSION_SECONDS, Auth, LoginRefused,
-                                  parse_credentials)
+from wakeword.studio.auth import (
+    MAX_FAILURES,
+    PAUSE_SECONDS,
+    SESSION_SECONDS,
+    Auth,
+    LoginRefused,
+    parse_credentials,
+)
 
 
 class Clock:
@@ -82,3 +88,23 @@ def test_new_password_or_secret_logs_everybody_out(tmp_path, clock):
     assert (folder / "studio-secret").stat().st_mode & 0o777 == 0o600
     (folder / "studio-secret").unlink()
     assert Auth(("admin", "one"), folder, clock).check(cookie) is None
+
+
+def test_trusted_networks_from_the_environment_value():
+    from wakeword.studio.auth import parse_networks
+
+    assert [str(n) for n in parse_networks("192.168.0.0/23, 172.16.5.0/24;fd00::/8")] == [
+        "192.168.0.0/23", "172.16.5.0/24", "fd00::/8"]
+    assert parse_networks("") == () and parse_networks(None) == ()
+    with pytest.raises(ValueError, match="STUDIO_TRUSTED_NETWORKS: 'home' is not a network"):
+        parse_networks("home")
+
+
+def test_a_trusted_network_needs_no_login_and_nothing_else_does(tmp_path, clock):
+    from wakeword.studio.auth import parse_networks
+
+    auth = Auth(("admin", "pw"), tmp_path / "c", clock, trusted_networks=parse_networks("192.168.0.0/23"))
+    assert auth.trusted("192.168.1.5") and auth.trusted("192.168.0.1")
+    assert auth.trusted("::ffff:192.168.1.5")  # an IPv4 client on a dual-stack socket
+    assert not auth.trusted("192.168.2.1") and not auth.trusted("10.0.0.5") and not auth.trusted("not an address")
+    assert not Auth(("admin", "pw"), tmp_path / "c", clock).trusted("192.168.1.5")  # nothing set: the login always

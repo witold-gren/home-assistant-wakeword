@@ -11,7 +11,7 @@ import pytest
 
 ROOT = Path(__file__).parents[2]
 BASIC = ("bash", "sh", "sed", "awk", "grep", "head", "cat", "mkdir", "chmod", "dirname", "id", "env",
-         "python3", "printf", "tr", "cut", "hostname", "rm", "touch")
+         "python3", "printf", "tr", "cut", "hostname", "rm", "touch", "mv")
 
 FAKES = {
     "nvidia-smi": """#!/bin/sh
@@ -65,7 +65,7 @@ def machine(tmp_path):
         fakes[name] = fake
     log = tmp_path / "calls.log"
 
-    def run(*args, missing=(), stdin="", **settings):
+    def run(*args, missing=(), stdin="", extra_env=None, **settings):
         for name, fake in fakes.items():
             link = bin_dir / name
             if link.exists() or link.is_symlink():
@@ -73,7 +73,7 @@ def machine(tmp_path):
             if name not in missing:
                 link.symlink_to(fake)
         env = {"PATH": str(bin_dir), "HOME": str(tmp_path), "FAKE_LOG": str(log),
-               **{f"FAKE_{k.upper()}": v for k, v in settings.items()}}  # no USER on purpose
+               **{f"FAKE_{k.upper()}": v for k, v in settings.items()}, **(extra_env or {})}  # no USER on purpose
         return subprocess.run([str(bin_dir / "bash"), str(docker / "install-ubuntu.sh"), *args], env=env,
                               input=stdin, capture_output=True, text=True, timeout=60, check=False)
 
@@ -191,3 +191,19 @@ def test_uninstall_never_removes_another_project(machine):
     result = run("--uninstall", "--yes")
     assert result.returncode != 0 and "is not the wake word studio" in result.stderr
     assert docker.parent.exists() and "compose" not in (run.log.read_text() if run.log.exists() else "")
+
+
+def test_the_trusted_networks_go_into_the_env_file_and_can_be_removed(machine):
+    run, docker = machine
+    env_file = docker / "config" / "env"
+    assert run().returncode == 0
+    assert "STUDIO_TRUSTED_NETWORKS" not in env_file.read_text()  # not asked for: the login from everywhere
+    result = run(extra_env={"STUDIO_TRUSTED_NETWORKS": "192.168.1.0/24"})
+    assert result.returncode == 0 and "no login from: 192.168.1.0/24" in result.stdout
+    text = env_file.read_text()
+    assert text.count("STUDIO_TRUSTED_NETWORKS=192.168.1.0/24") == 1 and text.startswith("WAKEWORD_UI_AUTH=admin:")
+    assert run(extra_env={"STUDIO_TRUSTED_NETWORKS": "192.168.1.0/24"}).returncode == 0
+    assert env_file.read_text().count("STUDIO_TRUSTED_NETWORKS=") == 1  # replaced, not added twice
+    assert run(extra_env={"STUDIO_TRUSTED_NETWORKS": ""}).returncode == 0
+    assert "STUDIO_TRUSTED_NETWORKS" not in env_file.read_text() and env_file.read_text().startswith("WAKEWORD_UI_AUTH=")
+    assert oct(env_file.stat().st_mode)[-3:] == "600"
