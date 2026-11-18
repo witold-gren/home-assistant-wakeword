@@ -1,6 +1,6 @@
 # Custom wake words for Home Assistant Voice
 
-**English** · [Polski](README.pl.md)
+**English** · [Polski](README.pl.md) · [Documentation site](https://witold-gren.github.io/home-assistant-wakeword/)
 
 Tools to train **your own wake words** (microWakeWord) for the Home Assistant Voice Preview Edition
 and other ESPHome devices — on **recordings of your household**, with your accent.
@@ -95,6 +95,9 @@ make prepare WORDS=dzarwis_test # prepare the chosen words
 The household folder defaults to `~/home-assistant/wakeword` (on the computer that trains; the studio fetches the satellites' takes from Home Assistant through its API); another one: `make check H=/other/path`.
 
 ## Documentation
+
+The whole documentation as a site, in English and Polish: **https://witold-gren.github.io/home-assistant-wakeword/**
+(the same pages are in the studio under **?**).
 
 | | Chapter |
 |---|---|

@@ -1,6 +1,6 @@
 # Własne słowa wybudzające dla Home Assistant Voice
 
-[English](README.md) · **Polski**
+[English](README.md) · **Polski** · [Strona dokumentacji](https://witold-gren.github.io/home-assistant-wakeword/pl/)
 
 Narzędzia do wytrenowania **własnych słów wybudzających** (microWakeWord) dla Home Assistant Voice
 Preview Edition i innych urządzeń ESPHome — na **nagraniach domowników**, z ich akcentem.
@@ -95,6 +95,9 @@ make prepare WORDS=dzarwis_test # przygotowanie wybranych słów
 Folder rodziny domyślnie `~/home-assistant/wakeword` (na komputerze, który trenuje; nagrania z satelitów studio pobiera z Home Assistant przez API); inny: `make check H=/inna/ścieżka`.
 
 ## Dokumentacja
+
+Cała dokumentacja jako strona, po polsku i angielsku: **https://witold-gren.github.io/home-assistant-wakeword/pl/**
+(te same strony są w studiu pod **?**).
 
 | | Rozdział |
 |---|---|

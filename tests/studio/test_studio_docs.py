@@ -128,3 +128,16 @@ def test_the_site_builds_strictly(tmp_path):
                             capture_output=True, text=True, env={**os.environ, "NO_MKDOCS_2_WARNING": "1"})
     assert result.returncode == 0, result.stderr[-2000:]
     assert (tmp_path / "site" / "pl" / "11-studio.html").is_file() and (tmp_path / "site" / "12-training-well.html").is_file()
+
+
+def test_github_pages_builds_the_same_site_as_the_image():
+    """.github/workflows/docs.yml publishes the documentation on GitHub Pages with the MkDocs versions of the image's
+    docs stage, strict, at the site_url of mkdocs.yml."""
+    workflow = (ROOT / ".github" / "workflows" / "docs.yml").read_text(encoding="utf-8")
+    dockerfile = (ROOT / "docker" / "Dockerfile").read_text(encoding="utf-8")
+    pins = re.search(r"pip install --no-cache-dir (mkdocs==\S+ mkdocs-material==\S+ mkdocs-static-i18n==\S+)", dockerfile)
+    assert pins and f"pip install {pins.group(1)}" in workflow
+    assert "mkdocs build --strict" in workflow and "actions/deploy-pages@" in workflow
+    site_url = re.search(r'site_url: !ENV \[SITE_URL, "([^"]+)"\]', (ROOT / "mkdocs.yml").read_text(encoding="utf-8"))
+    assert site_url and site_url.group(1) == "https://witold-gren.github.io/home-assistant-wakeword/"
+    assert site_url.group(1) in workflow

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The documentation is published on GitHub Pages (`.github/workflows/docs.yml`, the same MkDocs versions as the image, strict): https://witold-gren.github.io/home-assistant-wakeword/ — linked from both READMEs.
+
 ## 1.0.0 — 2026-11-18
 
 - **First public release.** The repository's history starts with this version; 0.1.0 and 0.2.0 were private and are described below.
