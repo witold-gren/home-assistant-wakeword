@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""A few clips of every synthetic group, small enough to bring back to the Mac and listen to.
+"""A few clips of every synthetic group, small enough to listen to in the studio.
 
     python train/synth_preview.py <household folder> [per group]
 
 For every word: data/synthetic/<word>/<positive|negative>/<group>/ → the first and a middle clip
 copied to data/build/<word>/synthetic_preview/<positive|negative>/<group>_<clip>.wav.
-"Fetch samples" in card 4 of the panel brings them to the Mac and lists them there to listen to.
+The studio lists them to listen to (Synthetic voices → Samples to listen to).
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ def main() -> None:
     per_group = int(sys.argv[2]) if len(sys.argv) > 2 else 3
     for word, count in make_preview(household, per_group).items():
         print(f"{word}: {count} synthetic clips to listen to in data/build/{word}/synthetic_preview "
-              "(panel card 4: Fetch samples)", flush=True)
+              "(studio: Synthetic voices → Samples to listen to)", flush=True)
 
 
 if __name__ == "__main__":

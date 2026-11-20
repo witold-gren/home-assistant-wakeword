@@ -16,6 +16,9 @@ Debugowanie**; przy włączonym zapisie audio można odsłuchać, co usłyszało
 
 ## Fałszywe wybudzenia → nowe negatywy {#false-wakes-new-negatives}
 
+Ile ich jest, w którym pokoju i o której — pokazuje studio: **Dom → Fałszywe wybudzenia**
+([11.8](11-studio.md#false-wakes)), także przed i po nowym modelu.
+
 Najcenniejsze negatywy to dokładnie te dźwięki, które wybudziły urządzenie. Zapisz je (nagranie z
 debugowania asystenta, fragment programu TV, nagranie telefonem tej samej sceny) jako WAV do:
 

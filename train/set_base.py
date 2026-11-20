@@ -4,8 +4,8 @@
     python train/set_base.py <training_parameters.yaml> <best_weights.weights.h5> mixednet <model args…>
 
 microWakeWord continues a run from ``<train_dir>/restore/`` (``--restore_checkpoint``), the state the
-previous run ended with - not from its best weights. To start from another model (card 6 of the
-panel: Models → Choose) the model is built with the same arguments as for training, its weights
+previous run ended with - not from its best weights. To start from another model (the studio's
+Training → Models → Choose) the model is built with the same arguments as for training, its weights
 are loaded and saved as that checkpoint. The optimizer starts fresh, as in a new run.
 """
 

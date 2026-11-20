@@ -163,6 +163,9 @@ textarea.code:focus { border-color: rgba(79, 140, 255, 0.6); }
 .side h3 { margin: 0 0 6px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .side .meters { grid-template-columns: repeat(2, 1fr); }
 .side .terminal { max-height: 220px; }
+/* the output of the job fills the right column to its foot (the column has room under the meters) */
+.side [data-side-job-card] { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 240px; }
+.side [data-side-job-card] .terminal { flex: 1 1 auto; max-height: none; min-height: 180px; }
 .side .live-head { flex-wrap: wrap; }
 .side .elapsed { text-align: left; }
 .loading { margin: 40px auto; color: var(--muted); }
@@ -521,3 +524,68 @@ code { font: 12px ui-monospace, Menlo, monospace; }
 .side-head { display: flex; justify-content: flex-start; margin: -6px -6px 0; }
 .column-strip { background: var(--panel); display: flex; justify-content: center; padding-top: 10px; }
 .column-strip .fold-column { padding: 4px 4px; }
+
+/* the list of the lessons (⚙ → Lessons, gpu-studio standard 5a) */
+.lessons-group {
+  margin: 16px 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.lessons-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 8px;
+}
+.lesson {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  background: var(--panel2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.lesson:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.lesson:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.lesson > ha-icon {
+  margin-top: 2px;
+  color: var(--accent);
+}
+.lesson-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+.lesson-text .hint {
+  margin: 0;
+}
+.lesson.done .lesson-done {
+  color: var(--green);
+}
+
+/* Home → False wakes */
+.fw-controls { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.fw-table td { vertical-align: middle; }
+.fw-table input[type="date"] { padding: 4px 6px; }
+.fw-rate.good, .fw-better { color: var(--good); font-weight: 600; }
+.fw-rate.ok { color: var(--warn); font-weight: 600; }
+.fw-rate.bad, .fw-worse { color: var(--bad); font-weight: 600; }
+.fw-days { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding: 6px 0; }
+.fw-day { position: relative; flex: 1; height: 100%; min-width: 4px; }
+.fw-bar { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 3px 3px 0 0; }
+.fw-bar.all { background: var(--on); }
+.fw-bar.false { background: var(--bad); }
+.callout .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }

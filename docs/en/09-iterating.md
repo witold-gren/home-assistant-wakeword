@@ -16,6 +16,9 @@ Debug**; with audio recording enabled you can listen to what the device heard.
 
 ## False wakes → new negatives {#false-wakes-new-negatives}
 
+How many there are, in which room and when — the studio shows it: **Home → False wakes**
+([11.8](11-studio.md#false-wakes)), also before and after a new model.
+
 The most valuable negatives are exactly the sounds that woke the device. Save them (a recording
 from the assistant debug view, a clip of the TV programme, a phone recording of the same scene) as
 WAV to:

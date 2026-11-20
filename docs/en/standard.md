@@ -15,6 +15,7 @@ everything changed in this repository to meet it.
 | Docker | §3 | separate stages: documentation, demo, studio; self-tests; the installer switches old services on the same port off |
 | Login | §4 | user and password like Piper Voice Cloner, a 30-day session, a pause after 5 mistakes |
 | Look and help | §5 | one `?` to the documentation, help windows, folding columns |
+| Tour and lessons | §5a | a tour of the studio on the first open, 26 lessons from ⚙, "Show me step by step" in `?` |
 | Switching the machine off | §6 | through Home Assistant, by itself after a training with a countdown |
 | Performance | §9a | the studio never hangs: time limits, no polling in the background, long lists in pieces |
 | Documentation | §8 | a MkDocs site in PL and EN, in the studio and on the home documentation site, built in Docker |
@@ -118,6 +119,15 @@ machine. It replaced the old panel's access token.
   evaluation, export or command meanwhile pauses it; a container restart drops it; a power-off error shows in the bar.
   The power-off box is also next to "Start training".
 
+## Tour and lessons {#tour-and-lessons}
+
+Since 1.2.0 (§5a of the standard): **a tour of the studio** (9 parts of the screen framed, starts by itself on the first
+open, then ⚙ → Tour of the studio) and **lessons** (⚙ → Lessons, 26 in three groups — every task of chapter 13, also
+"A model for the home, not for the world" and "False wakes"). A lesson waits for a click only where the change goes to
+the draft; buttons that start work on the machine are only shown. Tests: `tests/studio/test_studio_tour.py` (every step
+finds its element on the demo, PL and EN, a click beside the frame does nothing). The container has the machine's time
+zone (§3, `/etc/localtime`). Described in [11.7](11-studio.md#tour-and-lessons).
+
 ## Performance {#performance}
 
 After the HA dashboards hung, the standard requires that the app never hangs:
@@ -167,6 +177,6 @@ reach the real Home Assistant.
   and export through the studio ([The first real run](#first-run-on-ubuntu)).
 - ~~Stage E7~~ — done in 1.0.0: the old panel (`make ui`, `ui-remote`, `wakeword train-ui`), the SSH mode from the Mac,
   `guide.md` and its screenshots removed; the texts and the cards' help describe the studio.
-- **Stage E8** — the false wakes log (API in Wake Word Recorder 0.3.0 and a view in the studio).
+- ~~Stage E8~~ — done in 1.2.0: the false wakes log (API in Wake Word Recorder 0.3.0 and the view Home → False wakes).
 - **Tidying the code**: `make lint` reports old ruff findings in older files and unformatted code — `make format`
   and manual fixes are a separate step.

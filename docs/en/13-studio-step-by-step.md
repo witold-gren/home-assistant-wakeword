@@ -14,6 +14,7 @@ Why things work the way they do is in [12. Training well](12-training-well.md) a
     - Home Assistant runs the **Wake Word Recorder** integration (recording through Voice PE) and you have a
       **long-lived token** (Profile → Security → Long-lived access tokens).
     - The Voice PE is added in ESPHome (the **ESPHome Device Builder** add-on).
+    - Every step of this chapter has a lesson in the studio: **⚙ → Lessons** ([11.7](11-studio.md#tour-and-lessons)).
 
 ## 13.1 Map of the studio — every function {#map}
 

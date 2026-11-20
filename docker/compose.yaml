@@ -22,6 +22,7 @@ services:
       - ${STUDIO_WORK:-./data/work}:/data/work                            # ~30 GB: negative datasets, voices, generators
       - ${STUDIO_HF:-./data/huggingface}:/home/wakeword/.cache/huggingface # Hugging Face (token, downloads)
       - ./config:/home/wakeword/.config/wakeword                          # Home Assistant, ElevenLabs, login secret
+      - /etc/localtime:/etc/localtime:ro                                  # the machine's time zone (the wake log of HA is local time)
     shm_size: 8gb                   # TensorFlow's data loaders
     deploy:
       resources:

@@ -59,7 +59,3 @@ export function renderOverview() {
         el("th", {}, t("col_trained"))),
       ...words))) : null);
 }
-
-export function renderFalseWakes() {
-  return card(t("n_false_wakes"), null, el("p", { class: "hint" }, t("soon")));
-}

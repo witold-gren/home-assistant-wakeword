@@ -137,7 +137,8 @@ Na maszynie w chmurze zostaw ją pustą.
 - **Pasek górny**: menu (przewodnik, logowanie, wyloguj) · nazwa folderu rodziny · stan treningu · stan maszyny i
   **Wyłącz maszynę** · **Bez zmian / Szkic zapisany** · cofnij / ponów (Ctrl+Z, Ctrl+Shift+Z) · Odrzuć ·
   motyw (jak system / jasny / ciemny) · **YAML** (cały `household.yaml` szkicu) · `?` (ta dokumentacja, w nowej karcie) ·
-  ⚙ (okienko pod przyciskiem: motyw i język od razu, „Cały wygląd i język” → węzeł Ustawienia → Wygląd i język) ·
+  ⚙ (okienko pod przyciskiem: motyw i język od razu, „Cały wygląd i język” → węzeł Ustawienia → Wygląd i język,
+  **Przewodnik po studiu** i **Samouczki** — [11.7](#tour-and-lessons)) ·
   **Historia** · **Zapisz** (Ctrl+S).
 - **Drzewo** (szukaj, zwiń/rozwiń wszystko, liczniki, ⚠ ostrzeżenia):
   - **Przegląd** — Pulpit (droga od nagrań do modelu, następny krok, stan, słowa w skrócie), Wyjście poleceń (wynik
@@ -147,7 +148,7 @@ Na maszynie w chmurze zostaw ją pustą.
   - **Nagrania** — wszystkie, każde słowo osobno, tło domu: odsłuch, zaznaczanie, usuwanie do `data/backup`.
   - **Głosy syntetyczne** — głosy Piper (także z repozytorium Hugging Face), ElevenLabs, próbki do odsłuchu.
   - **Trening** — Dane i przygotowanie, Parametry i start, Postęp na żywo, Modele (każde słowo), Ocena i eksport.
-  - **Dom** — Fałszywe wybudzenia (rozdział 9; widok w kolejnej wersji).
+  - **Dom** — Fałszywe wybudzenia ([11.8](#false-wakes)).
   - **Ustawienia** — Cele i język, Home Assistant, Zasilanie maszyny, Maszyna i token HF, Logowanie, Wygląd i język (motyw i język studia w tej przeglądarce).
 - **Środek** — widok zaznaczenia. Każda karta ma jeden `?`: otwiera małe okienko z opisem tej karty (zamyka je
   ✕, Esc albo kliknięcie obok), na dole jest link „Więcej w przewodniku” do właściwego rozdziału. Pola mają
@@ -197,7 +198,67 @@ Ustawienia: Ustawienia → Home Assistant (adres, token) i Zasilanie maszyny (pr
 ## 11.6 Pobieranie nagrań z Home Assistant {#fetching-recordings-from-home-assistant}
 
 Nagrania z satelitów (Wake Word Recorder) studio pobiera przez API dodatku: **Trening → Dane i przygotowanie →
-Pobierz nagrania z HA** (robi to też samo przy **Przygotuj**). Najpierw wysyła `household.yaml` do HA, potem
+Synchronizuj z HA** (robi to też samo przy **Przygotuj**). Najpierw wysyła `household.yaml` do HA, potem
 ściąga nowe ujęcia i nagrania tła; nagrania usunięte w studiu nie wracają. Potrzebny jest token długoterminowy
 administratora (Ustawienia → Home Assistant). Odrzucony token (401) jest zapamiętywany i studio przestaje pytać HA
 aż do ponownego **Zapisz** w tych ustawieniach — każde 401 to dla HA nieudane logowanie (`ip_ban`).
+
+## 11.7 Przewodnik i samouczki {#tour-and-lessons}
+
+Studio ma dwie pomoce do szybkiej nauki, tak jak Edytor Home Dashboard:
+
+- **Przewodnik po studiu** — części ekranu po kolei w ramce (drzewo, środek, prawa kolumna, szkic i historia,
+  Zapisz, maszyna, `?` i ⚙), reszta przyciemniona, a dymek mówi, co to jest i gdzie się to ustawia. Pokazuje się
+  sam przy pierwszym otwarciu studia w przeglądarce; potem zawsze z **⚙ → Przewodnik po studiu**. Strzałki i Enter
+  przechodzą dalej, Esc albo **Pomiń** kończą.
+
+![Przewodnik po studiu](../assets/screens/pl/studio-tour.png)
+
+- **Samouczki** — **⚙ → Samouczki**: każde zadanie z [rozdziału 13](13-studio-step-by-step.md) jako krótki
+  przewodnik, który sam przechodzi do właściwego węzła drzewa i pokazuje po jednej rzeczy. Tam, gdzie zmiana trafia
+  tylko do szkicu (dodanie osoby albo słowa, otwarcie ⚙), samouczek **czeka, aż klikniesz przycisk w ramce** — zadanie
+  robisz w trakcie nauki i możesz je cofnąć. Przyciski, które uruchamiają pracę maszyny albo coś wysyłają (pobierz,
+  przygotuj, trenuj, eksportuj, wyłącz maszynę), samouczek tylko pokazuje z notką — naciskasz je sam. Przerobione
+  samouczki są zaznaczone ✓ (pamięta to przeglądarka); samouczek, któremu czegoś brakuje (np. wytrenowanego słowa),
+  jest wyszarzony i mówi czego. `?` na karcie ma przycisk **Pokaż krok po kroku** z samouczkiem tego miejsca.
+
+![Samouczki](../assets/screens/pl/studio-lessons.png)
+
+![Samouczek czeka na kliknięcie przycisku w ramce](../assets/screens/pl/studio-lesson.png)
+
+| Grupa | Samouczki |
+|---|---|
+| Pierwsze słowo od zera | Połącz z Home Assistant, Dodaj osobę, Dodaj słowo budzące, Urządzenia, Cele nagrań, Nagraj i pobierz, Przygotuj dane, Trenuj, Model dla domu, nie dla świata, Obserwuj trening, Oceń model, Eksport do Home Assistant |
+| Dalsze kroki | Dodaj kolejne słowo, Trenuj ponownie, Uporządkuj nagrania, Fałszywe wybudzenia, Zmień osoby i słowa, Posłuchaj próbek, Tło domu, Szkic, YAML i historia, Przegląd i zadania |
+| Ustawiane raz | Zasilanie maszyny, Głosy Piper, Głosy ElevenLabs, Maszyna i konto, Wygląd i język |
+
+## 11.8 Fałszywe wybudzenia {#false-wakes}
+
+**Dom → Fałszywe wybudzenia** pokazuje każde wybudzenie Twoich satelitów z dziennika Home Assistant
+(`/config/assist/wake_word_log.csv`, który zapisuje Wake Word Recorder). Studio pobiera go przez
+`GET /api/wake_word_recorder/wake_log` — potrzebny jest **Wake Word Recorder 0.3.0 lub nowszy** i połączenie z
+Home Assistant (Ustawienia → Home Assistant).
+
+![Fałszywe wybudzenia](../assets/screens/pl/studio-false-wakes.png)
+
+Każde wybudzenie trafia do jednego rodzaju:
+
+| Rodzaj | Kiedy | Liczy się jako |
+|---|---|---|
+| komenda | zamiana mowy na tekst usłyszała prawdziwe polecenie | prawdziwe |
+| nikt nie mówił (`no_speech`) | satelita się obudził, a tekst jest pusty | **fałszywe** |
+| tekst szumu | typowy tekst Whispera dla ciszy i szumu („Dziękuję za oglądanie”, „do zobaczenia w kolejnych odcinkach”, „Koniec.”) | **fałszywe** |
+| jedno słowo | jedno słowo, które nic nie zrobiło („Nie!”) | **fałszywe** |
+| przerwane (`cancelled`) | przebieg skończył się przed zamianą mowy na tekst | niejasne — sprawdź na liście |
+| duplikat | inny satelita przyjął to samo słowo — ktoś je naprawdę powiedział | pominięte |
+| nagranie rejestratora | ujęcie nagrane przez Wake Word Recorder | pominięte |
+
+- **Podsumowanie** — wybudzenia, fałszywe i **fałszywe na dobę** względem celu: najwyżej jedno na dobę
+  ([rozdział 12](12-training-well.md)). Za dużo — podpowiedź, który pokój nagrać jako tło i co zmienić.
+- **Słowa budzące** — dla słowa wytrenowanego w studiu porównanie **Przed** i **Po**: do dnia, w którym jego model
+  trafił do Home Assistant, i od tego dnia. Dzień to data pliku eksportu (`data/export/wake_words/<słowo>.tflite`); jeśli
+  wgrałeś model na satelity później, ustaw dzień ręcznie w kolumnie **Model od**.
+- **Dzień po dniu**, **Satelity** i **Podejrzane wybudzenia** (najnowsze fałszywe i niejasne z godziną, pokojem i tym,
+  co usłyszał Whisper) pokazują, co budzi urządzenia — telewizor wieczorem, zmywarka w nocy.
+
+Co dalej z fałszywymi wybudzeniami: [9. Kolejne iteracje](09-iterating.md#false-wakes-new-negatives).

@@ -138,7 +138,7 @@ machine (the shared standard). On a machine in the cloud leave it empty.
   **Switch the machine off** · **No changes / Draft saved** · undo / redo (Ctrl+Z, Ctrl+Shift+Z) · Discard ·
   look (as the system / light / dark) · **YAML** (the draft's whole `household.yaml`) · `?` (this documentation, in a new tab) ·
   ⚙ (a pop-up under the button: theme and language at once, "All look and language" → the node Settings → Look and
-  language) · **History** · **Save** (Ctrl+S).
+  language, **Tour of the studio** and **Lessons** — [11.7](#tour-and-lessons)) · **History** · **Save** (Ctrl+S).
 - **Tree** (search, fold/unfold all, counts, ⚠ warnings):
   - **Overview** — Dashboard (the road from recordings to a model, the next step, now, the words at a glance),
     Command output (the last command's output and the training log, with copy).
@@ -147,7 +147,7 @@ machine (the shared standard). On a machine in the cloud leave it empty.
   - **Recordings** — all, each word, the home background: listen, select, delete to `data/backup`.
   - **Synthetic voices** — Piper voices (also from a Hugging Face repository), ElevenLabs, samples to listen to.
   - **Training** — Data and preparing, Parameters and start, Live progress, Models (each word), Evaluation and export.
-  - **Home** — False wakes (chapter 9; the view comes in a later version).
+  - **Home** — False wakes ([11.8](#false-wakes)).
   - **Settings** — Targets and language, Home Assistant, Machine power, Machine and HF token, Login, Look and language (the studio's theme and language in this browser).
 - **Middle** — the view of the choice. Every card has one `?`: it opens a small window with the card's text (✕, Esc
   or a click beside it closes it), with a “More in the guide” link to its chapter at the bottom. Fields have a hint
@@ -199,7 +199,67 @@ threshold in W).
 ## 11.6 Fetching recordings from Home Assistant {#fetching-recordings-from-home-assistant}
 
 The satellites' recordings (Wake Word Recorder) come through the integration's API: **Training → Data and
-preparing → Fetch recordings from HA** (also done by **Prepare**). It first sends `household.yaml` to HA, then
+preparing → Sync with HA** (also done by **Prepare**). It first sends `household.yaml` to HA, then
 downloads new takes and background recordings; recordings deleted in the studio do not come back. It needs a
 long-lived token of an administrator (Settings → Home Assistant). A rejected token (401) is remembered and the studio
 stops asking HA until **Save** in those settings again — every 401 is a failed login for HA (`ip_ban`).
+
+## 11.7 Tour and lessons {#tour-and-lessons}
+
+The studio has two aids for learning it fast, like the Home Dashboard editor:
+
+- **Tour of the studio** — the parts of the screen framed one at a time (the tree, the middle, the right column,
+  draft and history, Save, the machine, `?` and ⚙), the rest dimmed, and a bubble that says what each is and where it
+  is set. It shows by itself the first time the studio opens in a browser; then always from **⚙ → Tour of the
+  studio**. The arrows and Enter go on, Esc or **Skip** end it.
+
+![Tour of the studio](../assets/screens/en/studio-tour.png)
+
+- **Lessons** — **⚙ → Lessons**: every task of [chapter 13](13-studio-step-by-step.md) as a short tour that goes to
+  the right node of the tree by itself and shows one thing at a time. Where a change only goes to the draft (adding a
+  person or a word, opening ⚙) the lesson **waits for you to click the framed button** — you do the task while you
+  learn it, and can undo it. Buttons that start work on the machine or send something (fetch, prepare, train,
+  export, switch the machine off) are only shown with a note — you press them yourself. Lessons gone through are
+  ticked ✓ (remembered by the browser); a lesson that misses something (a trained word, say) is greyed out and says
+  what. The `?` of a card has a **Show me step by step** button with the lesson of that place.
+
+![Lessons](../assets/screens/en/studio-lessons.png)
+
+![A lesson waits for the framed button](../assets/screens/en/studio-lesson.png)
+
+| Group | Lessons |
+|---|---|
+| The first word from nothing | Connect Home Assistant, Add a person, Add a wake word, Devices, Targets of recordings, Record and fetch, Prepare the data, Train, A model for the home, not for the world, Watch the training, Judge a model, Export to Home Assistant |
+| Next steps | Add another word, Train again, Tidy the recordings, False wakes, Change people and words, Listen to the samples, Background of the home, Draft, YAML and history, Overview and jobs |
+| Set up once | Power of the machine, Piper voices, ElevenLabs voices, The machine and the account, Look and language |
+
+## 11.8 False wakes {#false-wakes}
+
+**Home → False wakes** shows every wake of your satellites from the wake log of Home Assistant
+(`/config/assist/wake_word_log.csv`, written by Wake Word Recorder). The studio reads it through
+`GET /api/wake_word_recorder/wake_log` — it needs **Wake Word Recorder 0.3.0 or newer** and the connection to Home
+Assistant (Settings → Home Assistant).
+
+![False wakes](../assets/screens/en/studio-false-wakes.png)
+
+Each wake goes into one kind:
+
+| Kind | When | Counts as |
+|---|---|---|
+| command | speech to text heard a real command | true |
+| nobody spoke (`no_speech`) | the satellite woke and the text is empty | **false** |
+| noise text | Whisper's usual text for silence and noise ("Thanks for watching", "Dziękuję za oglądanie", "Koniec.") | **false** |
+| one word | one word that did nothing ("Nie!") | **false** |
+| cancelled | the run ended before speech to text | unclear — check it in the list |
+| duplicate | another satellite took the same word — someone really said it | left out |
+| recorder take | a take recorded by Wake Word Recorder | left out |
+
+- **Summary** — wakes, false ones and **false a day** against the goal: at most one a day
+  ([chapter 12](12-training-well.md)). Too many — a hint which room to record as background and what to change.
+- **Wake words** — for a word trained in the studio, **Before** and **After**: up to the day its model went to Home
+  Assistant and from it. The day is the date of the exported file (`data/export/wake_words/<word>.tflite`); if you put the model
+  on the satellites later, set the day by hand in the **Model since** column.
+- **Day by day**, **Satellites** and **Suspect wakes** (the newest false and unclear ones with the time, the room and
+  what Whisper heard) show what wakes the devices — the TV in the evening, the dishwasher at night.
+
+What to do with false wakes: [9. Iterating](09-iterating.md#false-wakes-new-negatives).

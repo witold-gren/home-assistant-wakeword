@@ -1,4 +1,4 @@
-"""Which of the kept models of a word is best, and why (card 6 of the panel: Models).
+"""Which of the kept models of a word is best, and why (the studio's Training → Models).
 
 Every model has a final test: for each cutoff, how many words it misses (FRR) and how often it wakes
 by itself (false wakes per hour). The goals are at most 5 % missed and at most 0.5 false wakes per
@@ -74,7 +74,7 @@ def _digest(path: Path) -> str | None:
 
 
 def local_model(build: Path) -> dict | None:
-    """Which kept model is in trained/ on this computer (brought by "Fetch models"): what export takes.
+    """Which kept model is in trained/ on this computer (the one the last training or Choose put there): what export takes.
 
     {"id", "name", "number"} - the number in the order the models were made, as in the Models card.
     """

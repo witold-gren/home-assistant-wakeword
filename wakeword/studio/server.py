@@ -163,6 +163,8 @@ class Studio(Trainer):
             return {"voices": self.hf_voices(str(arg("repo")))}
         if kind == "elevenlabs/voices":
             return {"voices": self.elevenlabs_voices(str(arg("language")), bool(arg("sync", False)))}
+        if kind == "false_wakes":
+            return self.false_wakes(str(arg("since")), dict(arg("deployed", {}) or {}))
         if kind == "training_log":
             return {"text": self.training_log()}
         raise ValueError(f"unknown call '{kind}'")

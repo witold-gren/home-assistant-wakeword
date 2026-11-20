@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "docs"))
 
-from demo_household import Demo, make_household, training_log
+from demo_household import Demo, demo_wake_log, make_household, training_log
 
 from wakeword import elevenlabs, ha_sync
 from wakeword.studio.server import make_server
@@ -56,6 +56,13 @@ def start_studio(root: Path, demo: Demo | None = None, port: int = 0, host: str 
     home = make_household(root)
     server = make_server(home, LOGIN, host=host, port=port, verbose=False, secret_folder=root / "secret", repo=fake_repo(root))
     server.demo = demo
+    # Home → False wakes: a made-up wake log, and Hej Jarvis exported 10 days ago (its before and after)
+    server.studio.wake_log_source = demo_wake_log()
+    exported = home / "data" / "export" / "wake_words" / "hej_jarvis.tflite"
+    exported.parent.mkdir(parents=True, exist_ok=True)
+    exported.write_bytes(b"TFL3-demo")
+    ten_days_ago = time.time() - 10 * 86400
+    os.utime(exported, (ten_days_ago, ten_days_ago))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     return server, f"http://127.0.0.1:{server.server_address[1]}"
 
@@ -78,7 +85,12 @@ STUDIO_SHOTS = {"studio-overview": "overview", "studio-word": "word/hej_jarvis",
                 # the step-by-step guide (docs/<lang>/13-studio-step-by-step.md)
                 "studio-words": "words", "studio-devices": "devices", "studio-recordings": "rec/hej_jarvis",
                 "studio-data": "train-data", "studio-run": "train-run", "studio-models": "models/hej_jarvis",
-                "studio-export": "export", "studio-ha": "ha", "studio-gear": "overview"}
+                "studio-export": "export", "studio-ha": "ha", "studio-gear": "overview",
+                # the tour and the lessons (docs/<lang>/11-studio.md, gpu-studio standard 5a)
+                "studio-tour": "overview", "studio-lessons": "overview", "studio-lesson": "words",
+                # Home → False wakes (docs/<lang>/11-studio.md#false-wakes), the demo's made-up wake log
+                "studio-false-wakes": "false-wakes"}
+TOUR = "document.querySelector('wakeword-studio-tour')"
 
 
 def shoot(base: str, server, languages=("pl", "en")) -> list[Path]:
@@ -91,6 +103,7 @@ def shoot(base: str, server, languages=("pl", "en")) -> list[Path]:
         for lang in languages:
             context = browser.new_context(viewport={"width": 1500, "height": 920}, color_scheme="dark")
             context.add_init_script(f"localStorage.setItem('wakeword-studio-lang', '{lang}');")
+            context.add_init_script("localStorage.setItem('wakeword-studio-tour', 'done');")  # the shots of the views
             page = context.new_page()
             page.goto(f"{base}/login")
             page.fill("input[name=user]", LOGIN[0])
@@ -108,16 +121,35 @@ def shoot(base: str, server, languages=("pl", "en")) -> list[Path]:
                 if name == "studio-models":  # the kept runs, compared
                     page.click("#load-models")
                     page.wait_for_selector("#models table, #models .model-row, #models tr", timeout=10000)
+                if name == "studio-false-wakes":
+                    page.wait_for_selector("[data-fw-summary] .tile")
                 if name == "studio-gear":  # ⚙: the pop-up with the look and the language
                     page.click("[data-settings]")
                     page.wait_for_selector("[data-gear-pop]")
+                if name == "studio-tour":  # the tour on its step of the tree
+                    page.evaluate("document.querySelector('wakeword-studio')._startTour()")
+                    page.wait_for_function(f"{TOUR}?.shadowRoot?.querySelector('[data-tour-bubble]')")
+                    page.evaluate(f"{TOUR}.shadowRoot.querySelector('[data-tour-next]').click()")
+                    page.wait_for_function(f"{TOUR}.shadowRoot.querySelector('[data-tour-bubble=tree]')")
+                if name == "studio-lessons":  # ⚙ → Lessons
+                    page.click("[data-settings]")
+                    page.click("[data-lessons-open]")
+                    page.wait_for_selector("[data-dialog='lessons'] [data-lesson]")
+                if name == "studio-lesson":  # a lesson waiting for its framed button
+                    page.evaluate("document.querySelector('wakeword-studio')._startLesson('add_word')")
+                    page.wait_for_function(f"{TOUR}?.shadowRoot?.querySelector('[data-tour-bubble=name]')")
+                    page.fill("[data-new-word]", "Hej Robo")
+                    page.evaluate(f"{TOUR}.shadowRoot.querySelector('[data-tour-next]').click()")
+                    page.wait_for_function(f"{TOUR}.shadowRoot.querySelector('[data-tour-try]')")
                 page.wait_for_timeout(600)
                 out = SHOTS / lang / f"{name}.png"
                 out.parent.mkdir(parents=True, exist_ok=True)
                 page.screenshot(path=str(out))
                 saved.append(out)
-                if name == "studio-gear":
+                if name in ("studio-gear", "studio-tour", "studio-lesson"):
                     page.keyboard.press("Escape")
+                if name == "studio-lessons":
+                    page.click("[data-dialog='lessons'] [data-close]")
                 if name == "studio-save":
                     page.keyboard.press("Escape")
                     page.click("[data-discard]")

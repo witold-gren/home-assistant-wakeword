@@ -98,6 +98,12 @@
 <tr><td>How do I reorder people or words?</td><td>Household → People or Words: drag the card by its handle and click “Save” — <code>household.yaml</code> follows</td></tr>
 <tr><td>How do I record a word again?</td><td>Recordings → All recordings → the word: tick the failed takes → “Delete selected” (files go to <code>data/backup/deleted-…</code>) and record again — new numbers never overwrite old ones</td></tr>
 <tr><td>Do I need a Hugging Face token?</td><td>no — it only speeds up downloads. Set it in Settings → Machine and HF token; it stays on the GPU machine, and below the field you see “A token is set on the GPU machine”</td></tr>
+<tr><td>False wakes: "Wake Word Recorder in Home Assistant has no wake log yet - update it to 0.3.0 or newer and restart Home Assistant"</td><td>Wake Word Recorder in Home Assistant is older than 0.3.0, or Home Assistant was not restarted after the update — update the integration, restart Home Assistant, then <strong>Refresh</strong></td></tr>
+<tr><td>False wakes: "no Home Assistant connection"</td><td>set the address and the token in Settings → Home Assistant</td></tr>
+<tr><td>False wakes: no Before / After columns</td><td>the comparison is only for words trained in the studio whose model day falls in the chosen period — choose a longer period or set the day in the <strong>Model since</strong> column</td></tr>
+<tr><td>The tour of the studio does not show</td><td>it shows by itself only the first time in a browser (and not in private browsing, where the browser keeps nothing); you always open it from <strong>⚙ → Tour of the studio</strong>. It does not start over an open window (Save or History, say) — close it</td></tr>
+<tr><td>Where are the lessons? A lesson is greyed out</td><td><strong>⚙ → Lessons</strong>, or <code>?</code> of a card → <strong>Show me step by step</strong>. A greyed-out lesson says what is missing ("Train a word first.") — do that and come back</td></tr>
+<tr><td>A lesson does not go on</td><td>a step that says "Click the framed button" waits for that button (clicks beside it are blocked); <strong>Next</strong> in the bubble always goes on without the click. Buttons with the note "starts work on the machine" are never waited for — press them yourself or go on</td></tr>
 <tr><td>How do I refresh the screenshots in this guide?</td><td><code>make screenshots</code> (made-up household, Google Chrome)</td></tr>
 </table></div>
 

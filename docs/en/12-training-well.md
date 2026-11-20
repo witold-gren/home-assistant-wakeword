@@ -117,7 +117,7 @@ default).
 
 The **Family** preset also sets the negative weight to 30: the model reacts very well to the household and almost
 never wakes by itself at home (worse for guests). **Neutral** (weight 20): the word for anyone, less fitted to the
-family. For a home with children and a TV, start with **Family**.
+family. For a home with children and a TV, start with **Family**. The lesson **⚙ → Lessons → A model for the home, not for the world** goes through every place where a home model differs from a general one (the preset, the weight of the negatives, the ranking of the models, the threshold of the export).
 
 ### Augmentation (fixed, `train/make_features.py`) {#augmentation}
 

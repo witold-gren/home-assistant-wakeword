@@ -118,7 +118,7 @@ puste = domyślne).
 
 Preset **Rodzina** ustawia też wagę negatywów 30: model bardzo dobrze reaguje na domowników i prawie nie budzi
 się sam w domu (gorzej na gości). **Neutralnie** (waga 20): słowo dla każdego, mniej dopasowane do rodziny.
-Dla domu z dziećmi i telewizorem zacznij od **Rodziny**.
+Dla domu z dziećmi i telewizorem zacznij od **Rodziny**. Samouczek **⚙ → Samouczki → Model dla domu, nie dla świata** przeprowadza przez wszystkie miejsca, w których model dla domu różni się od ogólnego (preset, waga negatywów, ranking modeli, próg eksportu).
 
 ### Augmentacja (stała, `train/make_features.py`) {#augmentation}
 

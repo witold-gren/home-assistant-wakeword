@@ -17,10 +17,15 @@ import {
   liveCard, renderData, renderExport, renderJobs, renderLive, renderRun, renderWordsToTrain, updateJobs, updateLive,
 } from "./views/training.js";
 import { forgetModels, renderModels, watchModels } from "./views/models.js";
-import { renderFalseWakes, renderOverview } from "./views/overview.js";
+import { renderOverview } from "./views/overview.js";
+import { renderFalseWakes } from "./views/false_wakes.js";
+import { tourSeen } from "./tour.js";
+import { findLesson, lessonForNode } from "./lessons.js";
 
 const APP_TAG = "wakeword-studio";
 export const POLL_MS = 2000;
+// lines of the running job in the right column (it fills the column to its foot)
+const SIDE_JOB_LINES = 400;
 export const STATE_TIMEOUT_MS = 20000; // a state that does not come in 20 s is said, not waited for
 // A draft is kept this long after the last change, so typing does not send every letter.
 export const DRAFT_SAVE_MS = 800;
@@ -126,6 +131,8 @@ class WakewordStudio extends LitElement {
     _menu: { state: true },
     _gear: { state: true },
     _error: { state: true },
+    // the tour ({ lesson: null }) or a lesson ({ lesson }) on the screen, null for none (gpu-studio standard, 5a)
+    _tour: { state: true },
   };
 
   // light DOM: the views are plain DOM taken over from the training panel and share studio.css
@@ -180,6 +187,8 @@ class WakewordStudio extends LitElement {
       refresh: (options) => this._refresh(options),
       select: (key) => this._select(key),
       isDirty: () => this._dirty,
+      lessonFor: () => lessonForNode(this._selected)?.key ?? null,
+      startLesson: (key) => this._startLesson(key),
       jobStarted: () => {},
     });
     this._load();
@@ -479,7 +488,8 @@ class WakewordStudio extends LitElement {
   /** A click outside ☰ and ⚙ (and their pop-ups) closes them. */
   _onOutside(event) {
     if (!this._menu && !this._gear) return;
-    if (event.composedPath().some((node) => node.classList?.contains("menu-wrap"))) return;
+    // a click in the tour (Next of a lesson that opened ⚙) does not close what the lesson shows
+    if (event.composedPath().some((node) => node.classList?.contains("menu-wrap") || node.localName === "wakeword-studio-tour")) return;
     this._menu = false;
     this._gear = false;
   }
@@ -713,9 +723,48 @@ class WakewordStudio extends LitElement {
     if (slot && this._state) slot.replaceChildren(liveCard());
     const job = this.querySelector("[data-side-job]");
     if (job) {
+      // the log opens at its end and follows it while you stay there; scrolled up, it stays where you read
       const atBottom = job.scrollTop + job.clientHeight >= job.scrollHeight - 20;
-      if (atBottom) job.scrollTop = job.scrollHeight;
+      if (atBottom || !job.dataset.seen) job.scrollTop = job.scrollHeight;
+      job.dataset.seen = "1";
     }
+    // the tour starts by itself the first time the studio opens in this browser, never over an open window
+    if (!this._tourChecked) {
+      this._tourChecked = true;
+      if (!tourSeen() && !this._dialog) this._startTour();
+    }
+  }
+
+  // --- the tour and the lessons (gpu-studio standard, section 5a) -----------------------------------
+
+  _startTour() {
+    common.closeHelp();
+    this._dialog = null;
+    this._gear = false;
+    this._menu = false;
+    this._tour = { lesson: null };
+  }
+
+  _startLesson(key) {
+    const lesson = findLesson(key);
+    if (!lesson) return;
+    common.closeHelp();
+    this._dialog = null;
+    this._gear = false;
+    this._menu = false;
+    this._tour = { lesson };
+  }
+
+  // what a lesson opened (the ⚙ pop-up) closes with it
+  _closeTour() {
+    if (this._tour?.lesson) this._gear = false;
+    this._tour = null;
+  }
+
+  _renderTour() {
+    if (!this._tour) return nothing;
+    return html`<wakeword-studio-tour .root=${this} .host=${this} .lesson=${this._tour.lesson}
+      .t=${(key, values) => this._t(key, values)} @tour-close=${() => this._closeTour()}></wakeword-studio-tour>`;
   }
 
   // --- saving and the history ---------------------------------------------------------------------
@@ -833,7 +882,7 @@ class WakewordStudio extends LitElement {
         </main>
         ${this._renderSplitter("right")} ${this._folded.right ? this._renderStrip("right") : this._renderSide(spec)}
       </div>
-      ${this._renderDialog()}
+      ${this._renderDialog()} ${this._renderTour()}
     `;
   }
 
@@ -1004,10 +1053,6 @@ class WakewordStudio extends LitElement {
           <p class="hint">${this._t("side_draft_note")}</p>
         </section>`
         : html`${spec?.side === "jobs" ? nothing : html`<div data-side-live></div>`}
-          ${spec?.side === "jobs" || this._state.job ? html`<section class="card" data-side-job-card>
-            <h3>${this._t("side_job")}${this._state.job ? ` · ${this._state.job.name}` : ""}</h3>
-            <pre class="terminal" data-side-job>${(this._state.job?.lines || []).slice(-40).join("\n") || "—"}</pre>
-          </section>` : nothing}
           ${powerReady ? html`<section class="card" data-power-card>
             <label class="check"><input type="checkbox" data-power-after .checked=${Boolean(power.after_training) || seconds !== null}
               @change=${async (event) => {
@@ -1019,6 +1064,10 @@ class WakewordStudio extends LitElement {
               <button class="btn small" @click=${async () => { await common.call("power/cancel"); await this._refresh(); }}>
               ${this._t("side_power_off_cancel")}</button></p>` : nothing}
             ${this._state.studio?.power_off_error ? html`<p class="hint warn">${this._t("side_power_off_error", { error: this._state.studio.power_off_error })}</p>` : nothing}
+          </section>` : nothing}
+          ${spec?.side === "jobs" || this._state.job ? html`<section class="card" data-side-job-card>
+            <h3>${this._t("side_job")}${this._state.job ? ` · ${this._state.job.name}` : ""}</h3>
+            <pre class="terminal" data-side-job>${(this._state.job?.lines || []).slice(-SIDE_JOB_LINES).join("\n") || "—"}</pre>
           </section>` : nothing}`}
     </aside>`;
   }
@@ -1026,6 +1075,11 @@ class WakewordStudio extends LitElement {
   _renderDialog() {
     if (this._dialog === "save") return this._renderSave();
     if (this._dialog === "history") return this._renderHistory();
+    if (this._dialog === "lessons") {
+      return this._dialogShell("lessons", this._t("lessons_title"), html`<wakeword-studio-lessons .host=${this}
+        .t=${(key, values) => this._t(key, values)} @lesson-start=${(event) => this._startLesson(event.detail.key)}>
+        </wakeword-studio-lessons>`);
+    }
     return nothing;
   }
 
@@ -1112,6 +1166,10 @@ class WakewordStudio extends LitElement {
           @click=${() => this._setLanguage(code)}>${LANGUAGE_NAMES[code] || code.toUpperCase()}</button>`)}</div>
         <button class="pop-link" data-gear-all @click=${() => { this._gear = false; this._select("look"); }}>
           <ha-icon icon="mdi:palette-outline"></ha-icon>${this._t("gear_all")}</button>
+        <button class="pop-link" data-tour-start @click=${() => this._startTour()}>
+          <ha-icon icon="mdi:arrow-right"></ha-icon>${this._t("gear_tour")}</button>
+        <button class="pop-link" data-lessons-open @click=${() => { this._gear = false; this._dialog = "lessons"; }}>
+          <ha-icon icon="mdi:book-open-variant"></ha-icon>${this._t("gear_lessons")}</button>
       </div>` : nothing}
     </span>`;
   }

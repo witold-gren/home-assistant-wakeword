@@ -277,7 +277,7 @@ def main() -> int:
             model_id = archive(args.household, args.word, args.config, args.started, args.log)
             if model_id:
                 write_base(args.household, args.word, model_id)  # the next run continues from this one
-                print(f"{args.word}: model kept as {model_id} (panel card 6: Models)")
+                print(f"{args.word}: model kept as {model_id} (studio: Training → Models)")
         elif args.command == "log":
             sys.stdout.buffer.write(read_log(args.household, args.word, args.model or ""))
         else:

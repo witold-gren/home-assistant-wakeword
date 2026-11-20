@@ -79,7 +79,7 @@ def _models_answer(result: subprocess.CompletedProcess) -> dict:
     if result.returncode != 0:
         error = result.stderr.decode(errors="replace").strip()
         if "models.py" in error and ("No such file" in error or "can't open" in error):
-            error = "the training machine has an older version - click “Send to machine” (card 4) first"
+            error = "the training scripts are older than the studio - update the studio on the machine (make deploy)"
         raise RuntimeError(error or "listing the models failed")
     return json.loads(result.stdout)
 

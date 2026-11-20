@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.0 — 2026-11-20
+
+- **Tour of the studio and lessons** (gpu-studio standard 5a, the pattern of the Home Dashboard editor): the tour frames the parts of the screen one at a time and starts by itself the first time the studio opens in a browser (⚙ → Tour of the studio). ⚙ → Lessons lists the lessons in three groups (the first word from nothing, next steps, set up once) covering every task of chapter 13; each goes to its node, frames one thing at a time and waits for the framed button only where the draft can undo it — buttons that start work on the machine (fetch, prepare, train, export, switch off) are shown with a note, never pressed or waited for. The `?` of a card offers the lesson of that place (Show me step by step). Texts PL+EN in `www/tour-texts.js`.
+- **Home → False wakes** (stage E8): every wake of the satellites from the wake log of Home Assistant (Wake Word Recorder 0.3.0, `GET /api/wake_word_recorder/wake_log`), each put in one kind — command, nobody spoke, Whisper's noise text ("Dziękuję za oglądanie"), one word that did nothing, cancelled (unclear), a duplicate of another satellite and the recorder's own takes (both left out). Summary against the goal of at most one false wake a day with a hint what to do, the false wakes per wake word with **Before / After** its model (the date of the exported file, or a day set by hand), day by day, per satellite and the newest suspect wakes. `wakeword/false_wakes.py`, `ha_sync.Client.wake_log`.
+- Lessons for every function of the editor: 26 lessons — new: **A model for the home, not for the world** (Family preset, home sets, negatives 30+, household ranking, household test, the threshold for the home, checking False wakes after a week), False wakes, Change people and words (adult/child, order, the id of a word, removing), Listen to the samples; the lessons Train, Judge a model, Draft and history, ElevenLabs, Overview and jobs and Power gained the steps they missed (negative weight, learning rates, convert only, Stop, load the models and their chart, the YAML of a choice, Discard, choosing voices, Copy, Switch off now).
+- The output of the running job fills the right column down to its foot (up to 400 lines, opening at its end); "Switch the machine off when it ends" sits above it.
+- "Model since" of False wakes reads the exported file where export puts it (`data/export/wake_words/<word>.tflite`); less than a day after a model is not marked better or worse yet.
+- The container keeps the machine's time zone (`/etc/localtime` mounted read-only): in UTC the dates of files were an hour off the wake log of Home Assistant.
+- False wakes count from the day the wake log began when it is younger than the chosen period (a log from 4 November no longer divides by 30 days).
+- The lesson "Record and fetch" and chapter 11.6 name the button as the studio shows it: **Sync with HA** (not "Fetch recordings from HA"); a test keeps lessons and buttons in step.
+- The training scripts and the trainer no longer point to the old panel ("card 5", "Fetch samples", "Send to machine"): their messages name the studio's places; a test keeps them so.
+- Docs: 11.7 Tour and lessons, 11.8 False wakes with screenshots, FAQ rows (PL+EN), chapter 12 points to the home-model lesson.
+
 ## 1.1.0 — 2026-11-18
 
 - **No login on the home network** (optional): `STUDIO_TRUSTED_NETWORKS=192.168.1.0/24` in `docker/config/env` (or `make install STUDIO_TRUSTED_NETWORKS=…`) logs every connection from those networks in at once; only the connection's address counts, never a header. Empty (the default) keeps the login from everywhere, as on a machine in the cloud. The menu and Settings → Login say so instead of offering "Log out". The same variable in every studio of the GPU machine.

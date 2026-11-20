@@ -206,6 +206,16 @@ class Client:
         with self._open("/esphome") as response:
             return json.load(response)["devices"]
 
+    def wake_log(self, since: str = "") -> dict:
+        """The wakes of the satellites from the day `since` on (Wake Word Recorder 0.3.0): {"rows", "total"}."""
+        try:
+            with self._open("/wake_log", {"since": since} if since else None, timeout=30) as response:
+                return json.load(response)
+        except HaError as err:
+            if "404" in str(err) or "Not Found" in str(err):
+                raise HaError("Wake Word Recorder in Home Assistant has no wake log yet - update it to 0.3.0 or newer and restart Home Assistant") from None
+            raise
+
     # --- Home Assistant itself: states and services (the machine's power, see wakeword/power.py) ---
     def entity_state(self, entity_id: str, timeout: float = 5) -> dict:
         """{"state", "attributes", ...} of an entity."""

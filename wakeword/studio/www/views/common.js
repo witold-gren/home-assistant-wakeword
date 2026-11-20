@@ -197,7 +197,7 @@ export function showHelp(button, { title, html = null, text = null, docsKey = nu
     el("div", { class: "help-pop-head" }, el("strong", {}, title),
       el("button", { type: "button", class: "help-pop-close", "aria-label": t("close"), title: t("close"),
         onclick: () => closeHelp() }, "✕")),
-    body, more ? el("p", { class: "help-pop-more" }, more) : null);
+    body, more ? el("p", { class: "help-pop-more" }, more) : null, lessonButton());
   document.body.append(pop);
   // next to the button, inside the screen
   const r = button.getBoundingClientRect();
@@ -222,6 +222,14 @@ export function showHelp(button, { title, html = null, text = null, docsKey = nu
     },
   };
   return undefined;
+}
+
+// the lesson of the chosen node under a help text (gpu-studio standard, section 5a): "Show me step by step"
+function lessonButton() {
+  const lesson = hooks?.lessonFor?.();
+  if (!lesson) return null;
+  return el("p", { class: "help-pop-more" }, el("button", { type: "button", class: "btn small", "data-help-lesson": lesson,
+    onclick: () => { closeHelp(); hooks.startLesson(lesson); } }, t("help_lesson")));
 }
 
 /** A "?" button for a card: opens its help window. */

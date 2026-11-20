@@ -15,6 +15,7 @@ zbiera wszystko, co w tym repozytorium zmieniono, żeby je spełnić.
 | Docker | §3 | osobne etapy: dokumentacja, demo, studio; samotesty; instalator wyłącza stare usługi na tym samym porcie |
 | Logowanie | §4 | login i hasło jak w Piper Voice Cloner, sesja 30 dni, przerwa po 5 błędach |
 | Wygląd i pomoc | §5 | jeden `?` do dokumentacji, okienka pomocy, zwijanie kolumn |
+| Przewodnik i samouczki | §5a | przewodnik po studiu przy pierwszym otwarciu, 26 samouczków z ⚙, „Pokaż krok po kroku” w `?` |
 | Wyłączanie maszyny | §6 | przez Home Assistant, samo po treningu z odliczaniem |
 | Wydajność | §9a | studio się nie zawiesza: limity czasu, brak odpytywania w tle, długie listy po kawałku |
 | Dokumentacja | §8 | strona MkDocs w PL i EN, w studiu i na domowej stronie dokumentacji, budowana w Dockerze |
@@ -117,6 +118,15 @@ dane z maszyny. Zastąpiło token dostępu starego panelu.
   eksport albo polecenie w trakcie wstrzymują odliczanie; restart kontenera je kasuje; błąd wyłączenia widać w
   pasku. Pole wyłączania jest też przy „Rozpocznij trening”.
 
+## Przewodnik i samouczki {#tour-and-lessons}
+
+Od 1.2.0 (§5a standardu): **przewodnik po studiu** (9 części ekranu w ramce, startuje sam przy pierwszym otwarciu,
+potem ⚙ → Przewodnik po studiu) i **samouczki** (⚙ → Samouczki, 26 w trzech grupach — każde zadanie rozdziału 13, także
+„Model dla domu, nie dla świata” i „Fałszywe wybudzenia”). Samouczek czeka na kliknięcie tylko tam, gdzie zmiana trafia do
+szkicu; przyciski, które uruchamiają pracę maszyny, tylko pokazuje. Testy: `tests/studio/test_studio_tour.py` (każdy krok
+znajduje element w demo, PL i EN, kliknięcie obok ramki nic nie robi). Kontener ma strefę czasową maszyny (§3,
+`/etc/localtime`). Opis: [11.7](11-studio.md#tour-and-lessons).
+
 ## Wydajność {#performance}
 
 Po problemach z zawieszaniem się dashboardów HA standard wymaga, żeby aplikacja nigdy się nie zawieszała:
@@ -165,6 +175,6 @@ nie łączą się z prawdziwym Home Assistantem.
   ocena i eksport przez studio ([Pierwsze prawdziwe uruchomienie](#first-run-on-ubuntu)).
 - ~~Etap E7~~ — zrobione w 1.0.0: stary panel (`make ui`, `ui-remote`, `wakeword train-ui`), tryb SSH z Maca,
   `guide.md` i jego zrzuty usunięte; teksty i pomoc kart opisują studio.
-- **Etap E8** — dziennik fałszywych wybudzeń (API w Wake Word Recorder 0.3.0 i widok w studiu).
+- ~~Etap E8~~ — zrobione w 1.2.0: dziennik fałszywych wybudzeń (API w Wake Word Recorder 0.3.0 i widok Dom → Fałszywe wybudzenia).
 - **Porządek w kodzie**: `make lint` zgłasza dawne uwagi ruff w starszych plikach i niesformatowany kod —
   `make format` i ręczne poprawki to osobny krok.

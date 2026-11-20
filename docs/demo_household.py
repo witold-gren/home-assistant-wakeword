@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import numpy as np
@@ -159,3 +160,45 @@ class Demo:
     def status(self, _runner, offset: int):
         return runner_module.Status(self.running, self.log.encode()[offset:], DEMO_GPU, True)
 
+
+
+def demo_wake_log(now: datetime | None = None, deployed_days_ago: int = 10):
+    """A made-up wake log of the demo's satellites (Wake Word Recorder's /wake_log): before the new Hej Jarvis
+    model went out a few false wakes a day in the children's room, after it rarely; a source for
+    Trainer.wake_log_source."""
+    now = now or datetime.now()
+    rows = []
+    devices = [("Salon", "Salon Voice"), ("Kuchnia", "Kuchnia Voice"), ("Pokój dzieci", "Pokój dzieci Voice")]
+    commands = ["Która godzina?", "Zgaś światło w salonie.", "Włącz muzykę.", "Jaka jest pogoda?"]
+    false_texts = [("no_speech", ""), ("command", "Dziękuję za oglądanie!"), ("command", "Nie!"), ("cancelled", "")]
+    for back in range(30, -1, -1):
+        day = now - timedelta(days=back)
+        before = back > deployed_days_ago
+        for hour, (area, device) in zip((8, 13, 19), devices):
+            when = day.replace(hour=hour, minute=7 * (back % 8), second=0, microsecond=0)
+            if when <= now:
+                rows.append((when, area, device, "Hej Jarvis", "command", commands[(back + hour) % 4], "action_done"))
+        for n in range(3 if before else (1 if back % 3 == 0 else 0)):
+            when = day.replace(hour=2 + 5 * n, minute=11, second=n, microsecond=0)
+            outcome, text = false_texts[(back + n) % 4]
+            if when <= now:
+                rows.append((when, "Pokój dzieci", "Pokój dzieci Voice", "Hej Jarvis", outcome, text, ""))
+        if back % 4 == 0:
+            when = day.replace(hour=21, minute=0, second=0, microsecond=0)
+            if when <= now:
+                rows.append((when, "Salon", "Salon Voice", "Hej Robo", "no_speech", "", ""))
+        if back in (20, 21):
+            when = day.replace(hour=17, minute=30, second=0, microsecond=0)
+            rows.append((when, "Kuchnia", "Kuchnia Voice", "Hej Jarvis", "command", "wake word take", "action_done"))
+    rows.sort()
+
+    def source(since: str) -> dict:
+        chosen = [{"timestamp": when.strftime("%Y-%m-%d %H:%M:%S"), "area": area, "device": device, "wake_word": word,
+                   "pipeline": "Wake word recording" if text == "wake word take" else f"{area} {word}",
+                   "outcome": outcome, "text": text, "response": response, "seconds": 4.0,
+                   "recorder": text == "wake word take"}
+                  for when, area, device, word, outcome, text, response in rows
+                  if not since or when.strftime("%Y-%m-%d") >= since]
+        return {"rows": chosen, "total": len(chosen)}
+
+    return source

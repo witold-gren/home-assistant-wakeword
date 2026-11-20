@@ -31,7 +31,7 @@ CUTOFF = re.compile(r"Cutoff (?P<cutoff>[\d.]+): frr=(?P<frr>[\d.]+); faph=(?P<f
 PLAN = re.compile(r"^training plan: steps=(?P<steps>\d+) started=(?P<started>\d+)"
                   r"(?: negative_weight=(?P<negative_weight>[\d.]+))?"
                   r"(?: phases=(?P<phases>[\d.:e,-]+))?"  # steps:learning rate of every phase
-                  r"(?: weights=(?P<weights>[a-z_\d.:e,-]*))?$")  # set:sampling weight (card 5)
+                  r"(?: weights=(?P<weights>[a-z_\d.:e,-]*))?$")  # set:sampling weight (Training → Parameters and start)
 ERROR = re.compile(r"(Traceback \(most recent call last\)|^\w*Error: |no model produced|TensorFlow does not see a GPU"
                    r"|^error: )")
 

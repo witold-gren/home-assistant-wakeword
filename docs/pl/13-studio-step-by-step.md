@@ -14,6 +14,7 @@ i [00. Jak to działa](00-how-it-works.md).
     - W Home Assistant działa integracja **Wake Word Recorder** (nagrywanie przez Voice PE) i masz
       **token długoterminowy** (Profil → Bezpieczeństwo → Tokeny długoterminowe).
     - Voice PE jest dodany w ESPHome (dodatek **ESPHome Device Builder**).
+    - Każdy krok tego rozdziału ma w studiu samouczek: **⚙ → Samouczki** ([11.7](11-studio.md#tour-and-lessons)).
 
 ## 13.1 Mapa studia — wszystkie funkcje {#map}
 

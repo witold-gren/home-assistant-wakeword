@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 import json
 import os
 import re
@@ -20,7 +21,8 @@ import yaml
 
 from .. import elevenlabs, ha_sync, power
 from ..dataset import list_takes
-from ..export import TRAINED_MODEL
+from ..export import TRAINED_MODEL, WAKE_WORDS_FOLDER, export_dir
+from ..false_wakes import analyse as analyse_false_wakes
 from ..household import (
     GROUPS,
     HOUSEHOLD_FILE,
@@ -121,6 +123,7 @@ class Trainer:
         self.lock = threading.Lock()
         self.job: Job | None = None
         self._esphome_cache: tuple[float, list[dict]] | None = None  # (time, devices) read from Home Assistant
+        self.wake_log_source = None  # since -> {"rows", "total"} instead of Home Assistant (the demo)
         self._machine_cache: tuple[float, dict] | None = None  # (time, plug/power/state) from Home Assistant
         self._checked = False  # the machine answered (or failed to) at least once
         self._refreshing = False  # a background check of the machine and Home Assistant is running
@@ -420,6 +423,29 @@ class Trainer:
                 "sensors": pick(lambda e: e["entity_id"].startswith("sensor.")
                                 and e.get("attributes", {}).get("unit_of_measurement") == "W")}
 
+    def false_wakes(self, since: str = "", deployed: dict | None = None) -> dict:
+        """The false wakes of the satellites from the wake log of Home Assistant (view Home → False wakes).
+
+        `since`: the first day (YYYY-MM-DD, 30 days ago when empty). `deployed`: {word id: "YYYY-MM-DD"} - when
+        its model went to the satellites, given by hand; else the time of the exported model file.
+        """
+        now = datetime.now()
+        since = since or (now - timedelta(days=30)).strftime("%Y-%m-%d")
+        datetime.strptime(since, "%Y-%m-%d")  # ValueError for anything else
+        household = self._load()
+        words = []
+        for word_id, word in (household.words.items() if household else []):
+            given = (deployed or {}).get(word_id)
+            if given:
+                datetime.strptime(given, "%Y-%m-%d")
+                when = f"{given} 00:00:00"
+            else:
+                model = export_dir(household) / WAKE_WORDS_FOLDER / f"{word_id}.tflite"
+                when = datetime.fromtimestamp(model.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S") if model.is_file() else None
+            words.append({"id": word_id, "wake_word": word.wake_word, "deployed": when})
+        log = self.wake_log_source(since) if self.wake_log_source else ha_sync.Client().wake_log(since)
+        return {**analyse_false_wakes(log["rows"], since, now, words), "total_rows": log["total"]}
+
     def evaluate(self, word: str) -> None:
         self._known_word(word)
         self._start_job("evaluate", [self._wakeword("evaluate", word)])
@@ -466,7 +492,7 @@ class Trainer:
             self._polled = 0.0
 
     def models(self, word: str) -> dict:
-        """The kept models of a word on the training machine, scored (card 6: Models)."""
+        """The kept models of a word on the training machine, scored (Training → Models)."""
         self._known_word(word)
         return rank_models(self.runner().list_models(word))
 

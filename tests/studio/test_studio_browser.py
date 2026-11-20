@@ -42,6 +42,7 @@ def page(studio):
             pytest.skip(f"Chrome not available: {err}")
         context = browser.new_context(viewport={"width": 1500, "height": 950}, color_scheme="dark")
         context.add_init_script("localStorage.setItem('wakeword-studio-lang', 'en');")
+        context.add_init_script("localStorage.setItem('wakeword-studio-tour', 'done');")  # its own tests: test_studio_tour
         page = context.new_page()
         page.errors = []
         page.on("pageerror", lambda err: page.errors.append(str(err)))
@@ -465,3 +466,31 @@ def test_a_trusted_network_shows_no_logout(page, studio):
     assert page.locator("[data-menu-pop] [data-logout]").count() == 0
     go(page, "account")
     assert page.locator("[data-view='account'] [data-trusted]").count() == 1
+
+
+def test_false_wakes_per_word_device_and_day(page):
+    go(page, "false-wakes")
+    page.wait_for_selector("[data-fw-summary] .tile")
+    assert page.locator("[data-fw-summary] .tile").count() == 5
+    jarvis = page.locator("[data-fw-word='Hej Jarvis']")
+    assert jarvis.locator(".fw-better").count() == 1  # fewer false wakes after the new model (the demo's log)
+    assert page.locator("[data-fw-devices] tr").nth(1).inner_text().startswith("Pokój dzieci")
+    assert page.locator("[data-fw-days] .fw-day").count() >= 30
+    assert page.locator("[data-fw-recent] tr").count() > 1
+    # another day for the model: asked again with it
+    page.fill("[data-fw-deployed='hej_jarvis']", "2026-11-01")
+    page.dispatch_event("[data-fw-deployed='hej_jarvis']", "change")
+    page.wait_for_function("document.querySelector(\"[data-fw-deployed='hej_jarvis']\")?.value === '2026-11-01'")
+    page.select_option("[data-fw-since]", "7")
+    page.wait_for_selector("[data-fw-summary] .tile")
+    assert page.locator("[data-fw-days] .fw-day").count() <= 8
+
+
+def test_the_job_output_fills_the_right_column(page, studio):
+    studio[0].studio.call({"type": "action", "action": "check"})  # a job, so its output shows on the side
+    go(page, "train-data")
+    page.wait_for_selector("[data-side-job]")
+    page.wait_for_timeout(500)
+    side, job = (page.locator(sel).bounding_box() for sel in ("[data-side]", "[data-side-job-card]"))
+    assert job["y"] + job["height"] >= side["y"] + side["height"] - 30  # down to the foot of the column
+    assert page.locator("[data-side-job]").bounding_box()["height"] > 300

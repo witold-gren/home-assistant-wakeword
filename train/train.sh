@@ -15,11 +15,11 @@
 #   STEPS                     override training steps from training_parameters.yaml
 #                             (a second run continues from the saved state: STEPS more steps)
 #   NEG_WEIGHT                override negative_class_weight (higher = fewer false wakes, more misses)
-#   SET_WEIGHTS               e.g. real=6,synthetic=1 - sampling weight of sets (panel card 5: family / neutral)
+#   SET_WEIGHTS               e.g. real=6,synthetic=1 - sampling weight of sets (studio: Training → Parameters and start, presets family / neutral)
 #   LEARNING_RATES            e.g. 0.001,0.0003,0.0001 - one per phase, the steps split 50/30/20 (2 phases:
 #                             50/50, 4: 40/30/20/10); default 0.001,0.0003,0.0001, continuing 0.0003,0.0001
 #   TRAIN=0                   skip training, only convert and test the best weights so far
-#   BASE=<model id>|new       no training: the next run starts from that kept model (panel card 6:
+#   BASE=<model id>|new       no training: the next run starts from that kept model (studio: Training → Models:
 #                             Models → Choose) or from scratch (train/models.py, train/set_base.py)
 #   ALLOW_CPU=1               train even when TensorFlow does not see a GPU (very slow)
 set -euo pipefail
@@ -139,7 +139,7 @@ python -c "import piper_train.vits.commons" 2>/dev/null || {
 cd "$HOUSEHOLD"
 
 if [ -n "${BASE:-}" ]; then
-  # card 6 of the panel, Models → Choose: no synthesis, no training
+  # the studio's Training → Models → Choose: no synthesis, no training
   for word in "${WORDS[@]}"; do
     log "$word: the next training starts from $BASE"
     python "$HERE/models.py" select "$HOUSEHOLD" "$word" "$BASE"
@@ -148,7 +148,7 @@ if [ -n "${BASE:-}" ]; then
         "data/build/$word/trained/best_weights.weights.h5" "${MODEL_ARGS[@]}"
     fi
   done
-  log "base chosen - start the training in the panel (card 5)"
+  log "base chosen - start the training (studio: Training → Parameters and start)"
   exit 0
 fi
 
@@ -158,7 +158,7 @@ for script in data/build/*/synthetic.sh; do
   PSG_MODEL="$GENERATOR" PIPER_VOICES_DIR="$WORK/voices" SYNTH_PIPER="$HERE/synth_piper.py" PYTHON=python \
     bash "$script"
 done
-# a few clips of every group to listen to on the Mac (card 4 of the panel: Fetch samples)
+# a few clips of every group to listen to (studio: Synthetic voices → Samples to listen to)
 python "$HERE/synth_preview.py" "$HOUSEHOLD"
 
 # 4. Features, training and the streaming model, word by word ------------------------------------
@@ -251,7 +251,7 @@ PY
 
   model="$build/trained/tflite_stream_state_internal_quant/stream_state_internal_quant.tflite"
   [ -f "$model" ] && log "$word: model ready → $model" || { echo "$word: no model produced"; exit 1; }
-  # every run on the list of card 6 (Models); after "convert only" its final test is refreshed
+  # every run on the list of Training → Models; after "convert only" its final test is refreshed
   python "$HERE/models.py" archive "$HOUSEHOLD" "$word" --config "$config" --started "$started" --log
   # the household test of the new model (and of older ones not measured on these takes yet): the
   # "Household" column of the Models card - held-out family takes, the test part of the home background
@@ -261,4 +261,4 @@ PY
 done
 
 rm -f features
-log "done - compare the models (studio: Training → Models; old panel: card 6; or wakeword evaluate / export)"
+log "done - compare the models (studio: Training → Models; or wakeword evaluate / export)"

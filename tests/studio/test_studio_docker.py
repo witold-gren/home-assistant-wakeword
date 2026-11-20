@@ -14,7 +14,8 @@ def test_compose_runs_the_studio_with_the_gpu_and_restarts_with_the_machine():
     assert service["restart"] == "unless-stopped"
     assert service["env_file"] == "./config/env"
     assert service["deploy"]["resources"]["reservations"]["devices"][0]["capabilities"] == ["gpu"]
-    targets = {volume.rsplit(":", 1)[1] for volume in service["volumes"]}  # ${STUDIO_WORK:-…} has a colon
+    data = [volume for volume in service["volumes"] if not volume.endswith(":ro")]  # the time zone is read-only
+    targets = {volume.rsplit(":", 1)[1] for volume in data}  # ${STUDIO_WORK:-…} has a colon
     assert targets == {"/data/household", "/data/work", "/home/wakeword/.cache/huggingface", "/home/wakeword/.config/wakeword"}
 
 
@@ -121,3 +122,9 @@ def test_the_installer_and_status_check_tensorflow_on_the_gpu_not_only_nvidia_sm
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     status = makefile[makefile.index("\nstatus:"):].split("\n\n", 1)[0]
     assert "docker/install-ubuntu.sh --gpu-check" in status
+
+
+def test_the_container_keeps_the_machines_time_zone():
+    """The wake log of Home Assistant is local time; a container in UTC would shift "Model since" by hours."""
+    service = yaml.safe_load((DOCKER / "compose.yaml").read_text(encoding="utf-8"))["services"]["studio"]
+    assert "/etc/localtime:/etc/localtime:ro" in service["volumes"]

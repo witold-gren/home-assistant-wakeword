@@ -228,7 +228,7 @@ def test_models_from_an_older_machine_say_what_to_do(tmp_path):
         b"",
         b"python3: can't open file 'train/models.py': [Errno 2] No such file",
     )
-    with pytest.raises(RuntimeError, match="Send to machine"):
+    with pytest.raises(RuntimeError, match="make deploy"):
         _models_answer(old)
 
 

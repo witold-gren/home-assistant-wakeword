@@ -98,6 +98,12 @@
 <tr><td>Jak zmienić kolejność osób albo słów?</td><td>Rodzina → Osoby albo Słowa: przeciągnij kartę za uchwyt i kliknij „Zapisz” — tak samo ułożą się w <code>household.yaml</code></td></tr>
 <tr><td>Jak nagrać słowo od nowa?</td><td>Nagrania → Wszystkie nagrania → słowo: zaznacz nieudane ujęcia → „Usuń zaznaczone” (pliki trafiają do <code>data/backup/deleted-…</code>) i nagraj ponownie — nowe numery nie nadpisują starych</td></tr>
 <tr><td>Czy token Hugging Face jest potrzebny?</td><td>nie — tylko przyspiesza pobieranie. Ustawiasz go w Ustawienia → Maszyna i token HF; zostaje na maszynie z GPU, a pod polem widać „Token jest ustawiony na maszynie z GPU”</td></tr>
+<tr><td>Fałszywe wybudzenia: „Wake Word Recorder in Home Assistant has no wake log yet - update it to 0.3.0 or newer and restart Home Assistant”</td><td>Wake Word Recorder w Home Assistant jest starszy niż 0.3.0 albo HA nie został zrestartowany po aktualizacji — zaktualizuj integrację i zrestartuj Home Assistant, potem <strong>Odśwież</strong></td></tr>
+<tr><td>Fałszywe wybudzenia: „no Home Assistant connection”</td><td>ustaw adres i token w Ustawienia → Home Assistant</td></tr>
+<tr><td>Fałszywe wybudzenia: brak kolumn Przed / Po</td><td>porównanie jest tylko dla słów wytrenowanych w studiu, gdy dzień modelu wypada w wybranym okresie — wybierz dłuższy okres albo ustaw dzień w kolumnie <strong>Model od</strong></td></tr>
+<tr><td>Przewodnik po studiu się nie pokazuje</td><td>pokazuje się sam tylko przy pierwszym otwarciu w danej przeglądarce (i nie w trybie prywatnym, bo przeglądarka nic nie pamięta); zawsze otworzysz go z <strong>⚙ → Przewodnik po studiu</strong>. Nie startuje nad otwartym oknem (np. Zapisz albo Historia) — zamknij je</td></tr>
+<tr><td>Gdzie są samouczki? Samouczek jest wyszarzony</td><td><strong>⚙ → Samouczki</strong> albo <code>?</code> na karcie → <strong>Pokaż krok po kroku</strong>. Wyszarzony samouczek mówi, czego brakuje (np. „Najpierw wytrenuj słowo.”) — zrób to i wróć</td></tr>
+<tr><td>Samouczek nie idzie dalej</td><td>krok z napisem „Kliknij przycisk w ramce” czeka na kliknięcie właśnie tego przycisku (kliknięcia obok są zablokowane); <strong>Dalej</strong> w dymku zawsze przechodzi bez klikania. Przycisków z notką „uruchamia pracę na maszynie” samouczek nie czeka — naciśnij je sam albo przejdź dalej</td></tr>
 <tr><td>Jak odświeżyć zrzuty ekranu w tym przewodniku?</td><td><code>make screenshots</code> (przykładowa rodzina, Google Chrome)</td></tr>
 </table></div>
 
