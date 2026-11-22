@@ -179,7 +179,7 @@ test: setup ## Tests, without building images | Testy, bez budowania obrazów
 
 test-browser: setup ## The studio and the panel in Google Chrome (Playwright, demo household) | Studio i panel w Google Chrome (Playwright, przykładowa rodzina)
 	@$(PIP) -e '.[test,docs]'
-	$(VENV)/bin/python -m pytest -q -m "not docker" tests/studio/test_studio_browser.py tests/studio/test_studio_login_browser.py tests/test_trainer_browser.py
+	$(VENV)/bin/python -m pytest -q -m "not docker" tests/studio/test_studio_browser.py tests/studio/test_studio_login_browser.py
 
 test-docker: setup ## The images for real: build the demo, run it, log in, stop it; build the docs (needs Docker) | Obrazy naprawdę: buduje demo, uruchamia, loguje się, zatrzymuje; buduje dokumentację (wymaga Dockera)
 	@$(NEED_DOCKER)

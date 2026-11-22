@@ -27,7 +27,7 @@ function personCard(person, index) {
       el("div", { class: `avatar ${person.group}` }, person.id.slice(0, 1)),
       el("strong", { class: "person-name", onclick: () => select(`person/${person.id}`) }, person.id),
       el("button", { type: "button", class: "icon-btn", title: t("remove"), "data-remove-person": person.id, onclick: async () => {
-        if (!(await ask(t("confirm_remove_person", { name: person.id }), { danger: true }))) return;
+        if (!(await ask(t("confirm_remove_person", { name: person.id }), { ok: t("remove"), danger: true }))) return;
         draft.speakers.splice(index, 1);
         for (const w of Object.values(draft.words)) if (w.speakers !== "all") w.speakers = w.speakers.filter((s) => s !== person.id);
         renderFamily();
@@ -97,7 +97,7 @@ function renderWord(wid, word) {
       el("button", { type: "button", class: "icon-btn", title: t("remove"),
         onclick: async () => {
           // its synthetic speech and ElevenLabs takes are trained on until the word is prepared again
-          if (!(await ask(t("spelling_remove_confirm", { lang: langLabel(lang), word: word.wake_word }), { danger: true }))) return;
+          if (!(await ask(t("spelling_remove_confirm", { lang: langLabel(lang), word: word.wake_word }), { ok: t("remove"), danger: true }))) return;
           delete word.spellings[lang];
           renderFamily();
         } }, "✕"));
@@ -113,7 +113,7 @@ function renderWord(wid, word) {
     el("div", { class: "word-title" }, dragHandle(),
       input(word.wake_word, (v) => { word.wake_word = v; }, { title: t("word_name_hint"), "aria-label": t("word_name"), "data-wake-word": "" }),
       el("button", { type: "button", class: "icon-btn", title: t("remove"), "data-remove-word": wid, onclick: async () => {
-        if (!(await ask(t("confirm_remove_word", { name: word.wake_word }), { danger: true }))) return;
+        if (!(await ask(t("confirm_remove_word", { name: word.wake_word }), { ok: t("remove"), danger: true }))) return;
         delete draft.words[wid];
         for (const [device, slots] of Object.entries(draft.devices)) draft.devices[device] = slots.filter((w) => w !== wid);
         renderFamily();
@@ -207,7 +207,8 @@ export function renderDevices() {
 
 async function renameWord(wid, word) {
   if (isDirty()) return toast(t("save_first"), "error");
-  const answer = prompt(t("rename_prompt", { id: wid }), slug(word.wake_word));
+  const answer = await ask(t("rename_prompt", { id: wid }),
+    { title: t("rename_title", { id: wid }), ok: t("rename_ok"), input: slug(word.wake_word) });
   const value = (answer || "").trim();
   if (!value || value === wid) return undefined;
   if (!ID_RE.test(value)) return toast(t("invalid_id"), "error");

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1 — 2026-11-22
+
+- **Questions are windows of the studio, never the browser's** (gpu-studio standard, section 5): renaming a word asked through the browser's `prompt()`; it now opens the studio's own question window with a text field (the field focused and its text selected, Enter confirms, Esc or Cancel leave the id as it was). The question window (`ask` in `views/common.js`) follows the standard everywhere: `role="alertdialog"`, the action button named after the action (Remove, Delete, Discard, Stop, Switch the machine off, Rename …, not "OK"), a dangerous action starts on Cancel so Enter alone never does it, Tab stays inside, Esc and a click beside it cancel, and the focus goes back to the button that opened it. A static test keeps `confirm(` / `alert(` / `prompt(` out of `www`; browser tests cover the rename and a dangerous question.
+
 ## 1.2.0 — 2026-11-20
 
 - **Tour of the studio and lessons** (gpu-studio standard 5a, the pattern of the Home Dashboard editor): the tour frames the parts of the screen one at a time and starts by itself the first time the studio opens in a browser (⚙ → Tour of the studio). ⚙ → Lessons lists the lessons in three groups (the first word from nothing, next steps, set up once) covering every task of chapter 13; each goes to its node, frames one thing at a time and waits for the framed button only where the draft can undo it — buttons that start work on the machine (fetch, prepare, train, export, switch off) are shown with a note, never pressed or waited for. The `?` of a card offers the lesson of that place (Show me step by step). Texts PL+EN in `www/tour-texts.js`.

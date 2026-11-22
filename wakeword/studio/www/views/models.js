@@ -58,7 +58,7 @@ export async function loadModels(words, button = null) {
 async function chooseModel(word, model, button, label = "") {
   const question = model === "new" ? t("models_new_confirm", { word: wordName(word) })
     : t("models_choose_confirm", { model: label || modelDate(model), word: wordName(word) });
-  if (!(await ask(question))) return;
+  if (!(await ask(question, { ok: t(model === "new" ? "models_new_ok" : "models_choose_ok") }))) return;
   reloadAfterChoice = true;
   action("choose_model", { word, model }, button);
 }

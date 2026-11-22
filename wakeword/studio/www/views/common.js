@@ -144,24 +144,73 @@ export function toast(text, kind = "") {
   setTimeout(() => node.remove(), Math.max(kind === "error" ? 7000 : 3500, String(text).length * 70));
 }
 
-// a question in the studio's own window; resolves true for OK, false for Cancel, Esc or a click outside
-export function ask(message, { danger = false } = {}) {
-  const ok = el("button", { type: "button", class: `btn ${danger ? "danger" : "primary"}`, "data-ask-ok": "" }, "OK");
+// A question in the studio's own window, never window.confirm / alert / prompt (gpu-studio standard, section 5).
+//   if (!(await ask(t("confirm_remove_word", { name }), { ok: t("remove"), danger: true }))) return;
+//   const id = await ask(t("rename_prompt", { id }), { ok: t("rename_ok"), input: id }); // the text, or null
+// Resolves true for the action button, false for Cancel, Esc or a click beside the window; with `input` the text of
+// the field (Enter in it confirms) or null. A dangerous action starts on Cancel, so Enter alone never does it.
+export function ask(message, { danger = false, title = "", ok = "", input = null, icon: iconName = "" } = {}) {
+  const asking = input !== null && input !== undefined;
+  // the button that opened it, through the shadow roots: the focus goes back there on close
+  let opener = document.activeElement;
+  while (opener?.shadowRoot?.activeElement) opener = opener.shadowRoot.activeElement;
+  const okButton = el("button", { type: "button", class: `btn ${danger ? "danger" : "primary"}`, "data-ask-ok": "" },
+    iconName ? icon(iconName) : null, ok || t("ask_ok"));
   const cancel = el("button", { type: "button", class: "btn", "data-ask-cancel": "" }, t("cancel"));
-  const dialog = el("dialog", { class: "ask" }, el("p", {}, message), el("div", { class: "actions" }, cancel, ok));
-  document.body.append(dialog);
+  const field = asking ? el("input", { type: "text", "data-ask-input": "", "aria-labelledby": "ask-text",
+    spellcheck: "false", autocomplete: "off" }) : null;
+  if (field) field.value = String(input);
+  const dialog = el("dialog", { class: "ask", role: "alertdialog", "aria-modal": "true",
+    "aria-labelledby": title ? "ask-title" : "ask-text", "aria-describedby": title ? "ask-text" : null },
+  title ? el("h2", { id: "ask-title" }, title) : null,
+  el("p", { id: "ask-text", "data-ask-text": "" }, message),
+  field,
+  el("div", { class: "actions" }, cancel, okButton));
+  // inside the studio, so the window has its colours and theme
+  (document.querySelector("wakeword-studio") ?? document.body).append(dialog);
   return new Promise((resolve) => {
-    const finish = (answer) => {
+    let done = false;
+    const finish = (confirmed) => {
+      if (done) return;
+      done = true;
       if (dialog.open) dialog.close();
       dialog.remove();
-      resolve(answer);
+      opener?.focus?.();
+      resolve(asking ? (confirmed ? field.value : null) : confirmed);
     };
+    // Esc: the browser's "cancel" of a modal dialog
+    dialog.addEventListener("cancel", (e) => { e.preventDefault(); finish(false); });
     dialog.addEventListener("close", () => finish(false));
-    ok.onclick = () => finish(true);
+    dialog.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        finish(false);
+      } else if (e.key === "Enter" && e.target === field) {
+        e.preventDefault();
+        finish(true);
+      } else if (e.key === "Tab") {
+        // the focus stays in the window
+        const stops = [field, cancel, okButton].filter(Boolean);
+        const at = stops.indexOf(document.activeElement);
+        e.preventDefault();
+        stops[(at + (e.shiftKey ? -1 : 1) + stops.length) % stops.length].focus();
+      }
+    });
+    okButton.onclick = () => finish(true);
     cancel.onclick = () => finish(false);
-    dialog.onclick = (e) => { if (e.target === dialog) finish(false); };
+    // a click on the scrim (the dialog itself, outside its box) cancels
+    dialog.onclick = (e) => {
+      if (e.target !== dialog) return;
+      const box = dialog.getBoundingClientRect();
+      const inside = e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
+      if (!inside) finish(false);
+    };
     dialog.showModal();
-    ok.focus();
+    if (field) {
+      field.focus();
+      field.select();
+    } else (danger ? cancel : okButton).focus();
   });
 }
 

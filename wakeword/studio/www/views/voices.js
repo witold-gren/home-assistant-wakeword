@@ -192,7 +192,7 @@ function elVoiceCard(voice, chosen) {
       el("button", { type: "button", class: "btn small primary", disabled: !eleven.word || !state.elevenlabs_key,
         title: t("el_test_hint"), onclick: (e) => elTest(voice, e.currentTarget) }, `🗣 ${t("el_test")}`),
       voice.source === "library" && !voice.added ? el("button", { type: "button", class: "link-btn", onclick: async (e) => {
-        if (!(await ask(t("el_add_confirm", { name: voice.name })))) return;
+        if (!(await ask(t("el_add_confirm", { name: voice.name }), { ok: t("el_add_ok") }))) return;
         const done = await action("elevenlabs_add", { voice: voice.id, language: eleven.language }, e.target);
         if (done) elLoadVoices(true);
       } }, t("el_add")) : null),
@@ -255,7 +255,7 @@ export function renderElevenLabs() {
         return undefined;
       } }, t("el_key_save")),
       state.elevenlabs_key ? el("button", { type: "button", class: "link-btn", onclick: async (e) => {
-        if (await ask(t("el_key_remove_confirm"), { danger: true })) {
+        if (await ask(t("el_key_remove_confirm"), { ok: t("remove"), danger: true })) {
           await action("elevenlabs_key", { key: "" }, e.target);
           redraw();
         }
@@ -307,7 +307,7 @@ export function renderElevenLabs() {
     disabled: !settings.voices.length || !state.elevenlabs_key || blocked.length > 0,
     onclick: async (e) => {
       if (isDirty()) return toast(t("save_first"), "error");
-      if (!(await ask(t("el_generate_confirm", { takes, characters })))) return undefined;
+      if (!(await ask(t("el_generate_confirm", { takes, characters }), { ok: t("el_generate") }))) return undefined;
       action("elevenlabs_generate", { words: generateWords }, e.target);
       return undefined;
     } }, t("el_generate"));

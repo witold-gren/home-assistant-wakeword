@@ -29,7 +29,7 @@ export function renderHomeAssistant() {
   } }, t("ha_save"));
   const remove = ha.url || ha.token ? el("button", { type: "button", class: "btn danger", onclick: async (e) => {
     const button = e.currentTarget;
-    if (!(await ask(t("ha_remove_confirm"), { danger: true }))) return;
+    if (!(await ask(t("ha_remove_confirm"), { ok: t("remove"), danger: true }))) return;
     await action("ha_connection", { url: "", token: "" }, button);
     redraw();
   } }, t("ha_remove")) : null;
@@ -81,7 +81,7 @@ export async function switchMachineOff(button) {
   const kind = state.machine?.machine;
   if (kind === "rejected") return toast(t("ha_token_rejected"), "error");
   if (state.training.running) return toast(t("power_off_running"), "error");
-  if (!(await ask(t("power_off_confirm"), { danger: true }))) return undefined;
+  if (!(await ask(t("power_off_confirm"), { ok: t("power_off"), danger: true }))) return undefined;
   await action("machine_off", {}, button);
   return undefined;
 }
@@ -169,7 +169,7 @@ export function renderHfToken() {
       } }, t("hf_token_save")),
       saved ? el("button", { type: "button", class: "btn danger", onclick: async (e) => {
         const button = e.currentTarget;
-        if (await ask(t("hf_token_confirm_remove"), { danger: true })) send("", button);
+        if (await ask(t("hf_token_confirm_remove"), { ok: t("remove"), danger: true })) send("", button);
       } }, t("hf_token_remove")) : null));
 }
 

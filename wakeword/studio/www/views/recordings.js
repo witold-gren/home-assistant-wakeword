@@ -49,7 +49,7 @@ function play(path, button) {
 
 async function deleteRecordings(paths) {
   if (!paths.length) return;
-  if (!(await ask(t("confirm_delete_recordings", { count: paths.length }), { danger: true }))) return;
+  if (!(await ask(t("confirm_delete_recordings", { count: paths.length }), { ok: t("delete_recordings_ok"), danger: true }))) return;
   const answer = await action("delete_recordings", { paths });
   if (answer) {
     for (const path of paths) picked.delete(path);

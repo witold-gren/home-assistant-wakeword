@@ -200,6 +200,14 @@ const STRINGS = {
     fw_kind_cancelled: "cancelled",
     fw_error_title: "No wake log",
     fw_error_hint: "Needs the connection to Home Assistant (Settings → Home Assistant) and Wake Word Recorder 0.3.0 or newer there.",
+    // questions in the studio's own window (views/common.js ask)
+    ask_ok: "Continue",
+    rename_title: "Change the id of “{id}”",
+    rename_ok: "Rename",
+    models_choose_ok: "Train from this model",
+    models_new_ok: "Start from scratch",
+    el_add_ok: "Add the voice",
+    delete_recordings_ok: "Delete",
   },
   pl: {
     title: "Studio słów budzących",
@@ -395,6 +403,14 @@ const STRINGS = {
     fw_kind_cancelled: "przerwane",
     fw_error_title: "Brak dziennika wybudzeń",
     fw_error_hint: "Potrzebne jest połączenie z Home Assistant (Ustawienia → Home Assistant) i Wake Word Recorder 0.3.0 lub nowszy.",
+    // pytania w oknie studia (views/common.js ask)
+    ask_ok: "Dalej",
+    rename_title: "Zmień identyfikator „{id}”",
+    rename_ok: "Zmień identyfikator",
+    models_choose_ok: "Trenuj od tego modelu",
+    models_new_ok: "Zacznij od zera",
+    el_add_ok: "Dodaj głos",
+    delete_recordings_ok: "Usuń",
   },
 };
 

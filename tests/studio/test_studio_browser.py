@@ -494,3 +494,82 @@ def test_the_job_output_fills_the_right_column(page, studio):
     side, job = (page.locator(sel).bounding_box() for sel in ("[data-side]", "[data-side-job-card]"))
     assert job["y"] + job["height"] >= side["y"] + side["height"] - 30  # down to the foot of the column
     assert page.locator("[data-side-job]").bounding_box()["height"] > 300
+
+
+def focused(page):
+    """Which part of the studio's question window has the focus: ok, cancel, input or None."""
+    return page.evaluate("""() => {
+        const a = document.activeElement;
+        if (!a?.closest('dialog.ask')) return null;
+        return a.hasAttribute('data-ask-ok') ? 'ok' : a.hasAttribute('data-ask-cancel') ? 'cancel'
+            : a.hasAttribute('data-ask-input') ? 'input' : 'other';
+    }""")
+
+
+def test_rename_a_word_in_the_studio_window(page, studio):
+    native = []
+    page.on("dialog", lambda dialog: (native.append(dialog.type), dialog.dismiss()))
+    go(page, "word/hej_jarvis")
+    page.click("[data-rename='hej_jarvis']")
+    box = page.locator("dialog.ask[role='alertdialog'][aria-modal='true']")
+    box.wait_for()
+    field = box.locator("[data-ask-input]")
+    assert field.input_value() == "hej_jarvis"
+    assert focused(page) == "input"
+    assert page.evaluate("(() => { const f = document.activeElement; return [f.selectionStart, f.selectionEnd]; })()") == [0, 10]
+    assert box.locator("[data-ask-ok]").inner_text() == "Rename"
+    assert "hej_jarvis" in box.locator("h2").inner_text()
+    # Esc cancels: nothing renamed, the focus back on the link that opened it
+    page.keyboard.press("Escape")
+    box.wait_for(state="detached")
+    assert page.evaluate("document.activeElement.getAttribute('data-rename')") == "hej_jarvis"
+    assert "hej_jarvis" in household_file(studio)["words"]
+    # Cancel gives nothing either
+    page.click("[data-rename='hej_jarvis']")
+    box.locator("[data-ask-cancel]").click()
+    box.wait_for(state="detached")
+    assert "hej_jarvis" in household_file(studio)["words"]
+    # a new id, Enter in the field confirms
+    page.click("[data-rename='hej_jarvis']")
+    field.fill("hej_dzarwis")
+    field.press("Enter")
+    page.wait_for_selector(".toast.ok:has-text('hej_dzarwis')")
+    words = household_file(studio)["words"]
+    assert "hej_dzarwis" in words and "hej_jarvis" not in words
+    assert native == []
+
+
+def test_a_dangerous_question_starts_on_cancel_and_keeps_the_focus_inside(page):
+    native = []
+    page.on("dialog", lambda dialog: (native.append(dialog.type), dialog.dismiss()))
+    go(page, "people")
+    remove = "[data-remove-person='anna']"
+    box = page.locator("dialog.ask")
+    page.click(remove)
+    box.wait_for()
+    assert box.locator("[data-ask-ok]").inner_text() == "Remove"
+    assert "danger" in box.locator("[data-ask-ok]").get_attribute("class")
+    assert focused(page) == "cancel"
+    # Enter alone never removes: it presses Cancel
+    page.keyboard.press("Enter")
+    box.wait_for(state="detached")
+    assert page.locator("[data-person='anna']").count() == 1
+    assert page.evaluate("document.activeElement.getAttribute('data-remove-person')") == "anna"
+    # Tab goes round inside the window
+    page.click(remove)
+    box.wait_for()
+    page.keyboard.press("Tab")
+    assert focused(page) == "ok"
+    page.keyboard.press("Tab")
+    assert focused(page) == "cancel"
+    page.keyboard.press("Shift+Tab")
+    assert focused(page) == "ok"
+    # a click beside the window cancels
+    page.mouse.click(5, 5)
+    box.wait_for(state="detached")
+    assert page.locator("[data-person='anna']").count() == 1
+    # the action button does it
+    page.click(remove)
+    box.locator("[data-ask-ok]").click()
+    page.wait_for_selector("[data-person='anna']", state="detached")
+    assert native == []

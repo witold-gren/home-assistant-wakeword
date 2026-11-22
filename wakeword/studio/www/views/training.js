@@ -205,7 +205,7 @@ export function renderRun() {
         el("button", { class: "btn primary big", id: "start", disabled: running, onclick: (e) => start(e.currentTarget) }, t("start")),
         el("button", { class: "btn danger", id: "stop", disabled: !running, onclick: async (e) => {
           const button = e.currentTarget;
-          if (await ask(t("confirm_stop"), { danger: true })) action("stop", {}, button);
+          if (await ask(t("confirm_stop"), { ok: t("stop"), danger: true })) action("stop", {}, button);
         } }, t("stop")))));
 }
 

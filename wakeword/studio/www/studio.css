@@ -489,6 +489,8 @@ details summary::-webkit-details-marker { display: none; }
 dialog.ask { width: min(480px, calc(100vw - 32px)); padding: 22px 24px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--text); }
 dialog.ask p { margin: 0 0 18px; line-height: 1.5; white-space: pre-line; }
 dialog.ask .actions { justify-content: flex-end; margin: 0; }
+dialog.ask h2 { margin: 0 0 10px; font-size: 16px; }
+dialog.ask input[data-ask-input] { width: 100%; margin: 0 0 18px; font: 13px ui-monospace, Menlo, monospace; }
 code { font: 12px ui-monospace, Menlo, monospace; }
 
 /* a narrow window: one column, the tree and the side below */

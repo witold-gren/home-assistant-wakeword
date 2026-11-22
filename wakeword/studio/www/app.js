@@ -472,7 +472,7 @@ class WakewordStudio extends LitElement {
   }
 
   async _discard() {
-    if (!(await common.ask(this._t("discard_confirm"), { danger: true }))) return;
+    if (!(await common.ask(this._t("discard_confirm"), { ok: this._t("discard"), danger: true }))) return;
     clearTimeout(this._draftTimer);
     this._pending = false;
     try {
@@ -815,7 +815,7 @@ class WakewordStudio extends LitElement {
   }
 
   async _restoreVersion(id) {
-    if (this._dirty && !(await common.ask(this._t("history_restore_confirm")))) return;
+    if (this._dirty && !(await common.ask(this._t("history_restore_confirm"), { ok: this._t("history_restore") }))) return;
     clearTimeout(this._draftTimer);
     this._pending = false;
     const before = this._current;
